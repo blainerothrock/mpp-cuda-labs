@@ -114,6 +114,14 @@ int main(int argc, char** argv) {
 	Matrix reference = AllocateMatrix(MATRIX_SIZE, MATRIX_SIZE, 0);
 	computeGold(reference.elements, M.elements, N.elements, HM, WM, WN);
 
+    printf("-- Reference --\n");
+    for ( int row = 0; row < reference.height; row++ ) {
+        for ( int col = 0; col < reference.width; col++ ) {
+            printf("%f ", reference.elements[row * P.width + col]);
+        }
+        printf("\n");
+    }
+
 	// check if the device result is equivalent to the expected solution
 	CUTBoolean res = cutComparefe(reference.elements, P.elements, size_elements, 0.0001f);
 	printf("Test %s\n", (1 == res) ? "PASSED" : "FAILED");
@@ -145,12 +153,57 @@ int main(int argc, char** argv) {
 void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 {
 	//Interface host call to the device kernel code and invoke the kernel
-	
-	
-	
-	
-	
-	
+
+	Matrix Md = AllocateDeviceMatrix(M);
+    Matrix Nd = AllocateDeviceMatrix(N);
+    Matrix Pd = AllocateDeviceMatrix(P);
+
+    printf("-- M --\n");
+    for ( int row = 0; row < M.height; row++ ) {
+        for ( int col = 0; col < P.width; col++ ) {
+            printf("%f ", M.elements[row * P.width + col]);
+        }
+        printf("\n");
+    }
+
+    printf("-- N --\n");
+    for ( int row = 0; row < N.height; row++ ) {
+        for ( int col = 0; col < P.width; col++ ) {
+            printf("%f ", N.elements[row * P.width + col]);
+        }
+        printf("\n");
+    }
+
+    CopyToDeviceMatrix(Md, M);
+    CopyToDeviceMatrix(Nd, N);
+    CopyToDeviceMatrix(Pd, P);
+
+    printf(" -- Hello from host\n\n");
+
+    dim3 DimGrid(1, 1);
+    dim3 DimBlock(N.width, N.height);
+
+
+
+    printf(" -- Starting Kernel func from host with %ix%i matrix\n\n", N.width, N.width);
+
+    MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
+
+    printf(" -- Waiting for Kernel to complete\n\n");
+    cudaThreadSynchronize();
+
+    printf(" -- Kernel complete\n\n");
+    CopyFromDeviceMatrix(P,Pd);
+
+    printf("-- P --\n");
+    for ( int row = 0; row < P.height; row++ ) {
+        for ( int col = 0; col < P.width; col++ ) {
+            printf("%f ", P.elements[row * P.width + col]);
+        }
+        printf("\n");
+    }
+
+
 }
 
 // Allocate a device matrix of same size as M.

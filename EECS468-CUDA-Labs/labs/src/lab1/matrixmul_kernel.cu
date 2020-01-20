@@ -52,13 +52,23 @@
 __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 {
 	//Multiply the two matrices
+//    printf(" -- Hello from the device %i\n", threadIdx.x);
+
+    float Pvalue = 0.0f;
+    for (int k = 0; k < M.width; ++k) {
 
 
 
+        int row = blockIdx.y * blockDim.y + threadIdx.y;
+        int col = blockIdx.x * blockDim.x + threadIdx.x;
 
+        printf("M idx: %i, N idx: %i\n", row * M.width+k, k * N.width+col);
+        float Melement = M.elements[row * M.width + k];
+        float Nelement = N.elements[k * N.width + col];
+        Pvalue += Melement * Nelement;
+    }
 
-
-
+    P.elements[threadIdx.y * P.width + threadIdx.x] = Pvalue;
 }
 
 #endif // #ifndef _MATRIXMUL_KERNEL_H_
