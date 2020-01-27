@@ -183,8 +183,6 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
     dim3 DimGrid(1, 1);
     dim3 DimBlock(N.width, N.height);
 
-
-
     printf(" -- Starting Kernel func from host with %ix%i matrix\n\n", N.width, N.width);
 
     MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
@@ -203,6 +201,10 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
         printf("\n");
     }
 
+    printf("\n-- Freeing up memory on device.\n\n");
+    cudaFree(&Md);
+    cudaFree(&Nd);
+    cudaFree(&Pd);
 
 }
 
