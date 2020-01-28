@@ -153,7 +153,6 @@ int main(int argc, char** argv) {
 void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 {
 	//Interface host call to the device kernel code and invoke the kernel
-
 	Matrix Md = AllocateDeviceMatrix(M);
     Matrix Nd = AllocateDeviceMatrix(N);
     Matrix Pd = AllocateDeviceMatrix(P);
@@ -202,9 +201,9 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
     }
 
     printf("\n-- Freeing up memory on device.\n\n");
-    cudaFree(&Md);
-    cudaFree(&Nd);
-    cudaFree(&Pd);
+    cudaFree(Md.elements);
+    cudaFree(Nd.elements);
+    cudaFree(Pd.elements);
 
 }
 
