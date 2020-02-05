@@ -153,8 +153,16 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	CopyToDeviceMatrix(Pd, P); // Clear memory
 
 	// Setup the execution configuration
+	dim3 DimGrid(1, 1);
+	dim3 DimBlock(16, 16);
+	//printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
+	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
 
 	// Launch the device computation threads!
+	printf(" -- Waiting for Kernel to complete\n\n");
+	cudaThreadSynchronize();
+
+	printf(" -- Kernel complete\n\n");
 
 	// Read P from the device
 	CopyFromDeviceMatrix(P, Pd); 

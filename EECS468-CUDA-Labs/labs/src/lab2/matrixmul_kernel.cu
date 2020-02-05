@@ -51,7 +51,21 @@
 // Matrix multiplication kernel thread specification
 __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 {
+	// TODO: change
+	int tileWidth = 2;
 
+	// get row idx of Pd and M and col index of Pd and N
+	int row = blockIdx.x*tileWidth + threadIdx.y;
+	int col = blockIdx.x*tileWidth + threadIdx.x;
+
+	float Pvalue = 0.0f;
+
+	for(int k = 0; k < P.width; k++){
+		Pvalue += M.elements[row*P.width+k] * N.elements[k*P.width+col];
+	}
+
+	// set Pvalue
+	P.elements[row * P.width + col] = Pvalue;
 
 }
 
