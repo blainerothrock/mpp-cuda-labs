@@ -51,21 +51,35 @@
 // Matrix multiplication kernel thread specification
 __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 {
-	// TODO: change
-	int tileWidth = 2;
+	// TODO: change to be dynamic
+	int tileHeightM = 17;
+	int tileWidthM = 11;
+	int tileHeightN = 11;
+	int tileWidthN = 35;
+
+	int tileHeightP = tileHeightM;
+	int tileWidthP = tileWidthN;
 
 	// get row idx of Pd and M and col index of Pd and N
-	int row = blockIdx.x*tileWidth + threadIdx.y;
-	int col = blockIdx.x*tileWidth + threadIdx.x;
+	int col = blockIdx.y*tileHeightM + threadIdx.y;
+	int row = blockIdx.x*tileWidthN + threadIdx.x;
 
-	float Pvalue = 0.0f;
+	printf("row: %i\n", row);
+	printf("col: %i\n", col);
 
-	for(int k = 0; k < P.width; k++){
-		Pvalue += M.elements[row*P.width+k] * N.elements[k*P.width+col];
+	float pValue = 0.0f;
+
+	for (int k = 0, j = 0; k<tileWidthP, j<tileHeightP; k++, j++) {
+		pValue += M.elements[row*M.width+k] * N.elements[j*N.width+col];
+
 	}
 
+//	for(int k = 0; k < tileWidthP; k++){
+//		Pvalue += M.elements[row*tileWidthP+k] * N.elements[k*tileWidthP+col];
+//	}
+
 	// set Pvalue
-	P.elements[row * P.width + col] = Pvalue;
+	P.elements[row * P.width + col] += pValue;
 
 }
 

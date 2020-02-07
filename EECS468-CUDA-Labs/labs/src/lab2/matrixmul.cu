@@ -152,15 +152,36 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	Matrix Pd = AllocateDeviceMatrix(P);
 	CopyToDeviceMatrix(Pd, P); // Clear memory
 
+	printf("M * N = P\n");
+	printf("M: (%i,%i)\n", M.height, M.width);
+	printf("N: (%i,%i)\n", N.height, N.width);
+	printf("P: (%i,%i)\n", P.height, P.width);
+
+	// TODO: make dynamic
+	int tileHeightM = 17;
+	int tileWidthM = 11;
+	int tileHeightN = 11;
+	int tileWidthN = 35;
+
+	int tileHeightP = tileHeightM;
+	int tileWidthP = tileWidthN;
+	//
+	//
+	//
+	//
+
 	// Setup the execution configuration
 	dim3 DimGrid(1, 1);
-	dim3 DimBlock(16, 16);
+	dim3 DimBlock(tileHeightP, tileWidthP);
 	//printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
 	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
 
 	// Launch the device computation threads!
 	printf(" -- Waiting for Kernel to complete\n\n");
 	cudaThreadSynchronize();
+	cudaError_t code;
+	code = cudaGetLastError();
+	printf("error: %s\n", cudaGetErrorString(code));
 
 	printf(" -- Kernel complete\n\n");
 
