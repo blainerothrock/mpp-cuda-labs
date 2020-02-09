@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<session version="1" name="lab2" hscale="3.844944173612203E-5">
+<executable file="/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/bin/linux/release/lab2" cwd="/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs" args="" launchConfiguration="lab2" timeout="0" profileonstart="true" concurrentkernels="true"><envs></envs></executable>
+<expert><columnprops></columnprops>
+</expert>
+<analysis activescope="APPLICATION"><visitedstages><stage name="TIMELINE"/></visitedstages></analysis>
+<vruler width="107"/>
+<hruler>
+</hruler>
+<timelinestate>
+<timeline pathname="17120" kind="PROCESS" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="17120/-1707292896" kind="THREAD" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="17120/-1707292896/Runtime API" kind="RUNTIME" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="17120/-1707292896/Driver API" kind="DRIVER" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="17120/Profiling Overhead" kind="OVERHEADS" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="GeForce GTX 680" kind="DEVICE" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="GeForce GTX 680/1" kind="CONTEXT" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="GeForce GTX 680/1/MemCpy (HtoD)" kind="MEMCPY_HTOD" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="GeForce GTX 680/1/MemCpy (DtoH)" kind="MEMCPY_DTOH" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="GeForce GTX 680/1/Compute" kind="KERNELS" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="GeForce GTX 680/1/Compute/MatrixMulKernel(Matrix, Matrix, Matrix)" kind="KERNEL" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="GeForce GTX 680/1/Streams" kind="STREAMS" containerstate="OPEN_ALL" filtered="false"/>
+<timeline pathname="GeForce GTX 680/1/Streams/1" kind="STREAM" containerstate="OPEN_ALL" filtered="false"/>
+</timelinestate>
+<pdm>
+H4sIAAAAAAAAAI3YTUhUURQH8PtmRhtTcyyrKcteZjZ92Whqk5WalfahIVlkbSxiQMFSBosWfbgJXLRoFUNQuyiCwiiiRR9CXxoVBS1m6SraRG6CvmS69513mnvO8PA+uHPe8/+7582beQPvKgJC+IUQlqyWrEVytMVbBxIn4nbbwW67Phb1yT+VydFztLqu4/hQou9sx+n+ffHEqXh/PRx39XT1SCBy5CiRY/j8fXUoOr8/VZPFZIsQ9put1ywBm3LL5Ej5njl58vkL4nyac/q9gDxy9TVxftYvdA3yWO04cQHWD/PBHxPE5bB+mEdfviMuV3NBOaaWv3fysdXviZuluTw5rlRDvnsbdUHmMI9upy6POczDu6ibrblCOb62Q5488pm4fM1dkMM+CfnZ0j/EFWhO9Q6vhfxrDXWFmlNzHjdAjhXdHPY5j7S4+SPLr7sizS2Qo/ct5N0lAeJCzDWHIe/dkEtcMXOdGyEfawwSN9d1AXfg9tH9Qvn9rIxqYO+HY6z8fg645546BMcjV6jz6/2sTG6/sogLaE7dB8EJyFMfqcthDnPucpkb+ww5Vn4/z+SCzN1OQY6V38/cjczyETebOcwH86nLZw5z7go8XHcRdYXMYc7dHA/XPI+6IuYw5y5k6Io9XGQhdXOZw5y7eYauhLlQKeRY0c03dAs83M8y6hYyhzl3YUO3iLnJcjcvp26xoSv1cOOV1C2R+2cuZhzm3C01dGUebnQNdcuYw5w729AtZy5ZBTlWdOVyP1ERq5rJrZD7p/qGBmZyFey8wzWQY0W3Uu7HExV1M7lKdl7Me+upW6X6He4bQoc5dxF2Xi+3Wl3H8f4D3HU2ULeGXS/m3K01dOsEbOhijZBjRbde7u80cFWGbgM7r90COVZ0UUNXza7Xy9UwF2yFHCu6jey8Xq7Wo9/UHurqWD/Muas3dJs8XKqDuhh7f//zJX7iNrN+/3PmGjzcuE3dFuYw526rodvm4UYrqGtkDnPumgxds9yf0FwyAjlWdNtZPy/XYthvB+s3vA5yrOjUb63YwO0y7NfK+vVGIceKro3183K7Bb3/MO+spW4P64c5d3s93GCaun3MYc5du4DncHh+8jsLX5XhdqznuvODGZy+4VRwviwXO3LXycNVTzRnEafOPPnlF7h7v50aFLDYFsnT7iPrr3PCnatSW76+rAy5R0Ko5+5mOUJoxkRmcRKALJ1OX0ynVYVz4ma5n4WlHTtDLqUiBdDx5m1YX+e1w/pZd13OlWfmTH2Dp/vLTbCGvvdwImvOIfet4ZzUADxJP/gE6+gz0x+y5hyWI9fd98nFD85pvwVrw3d3prPmHBXwDwtnfWCtEpd+pxwzOvAjy+pDfU8rtM8ks/0V3fI1371m9Zn+A72Z1HwhEQAA</pdm>
+</session>

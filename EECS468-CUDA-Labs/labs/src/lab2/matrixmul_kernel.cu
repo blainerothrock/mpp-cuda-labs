@@ -52,10 +52,15 @@
 __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 {
 	// TODO: change to be dynamic
-	int tileHeightM = 17;
-	int tileWidthM = 11;
-	int tileHeightN = 11;
-	int tileWidthN = 35;
+//	int tileHeightM = 17;
+//	int tileWidthM = 11;
+//	int tileHeightN = 11;
+//	int tileWidthN = 35;
+
+	int tileHeightM = 2;
+	int tileWidthM = 2;
+	int tileHeightN = 2;
+	int tileWidthN = 2;
 
 	int tileHeightP = tileHeightM;
 	int tileWidthP = tileWidthN;
@@ -64,8 +69,8 @@ __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 	int col = blockIdx.y*tileHeightM + threadIdx.y;
 	int row = blockIdx.x*tileWidthN + threadIdx.x;
 
-	printf("row: %i\n", row);
-	printf("col: %i\n", col);
+//	printf("row: %i\n", row);
+//	printf("col: %i\n", col);
 
 	float pValue = 0.0f;
 
@@ -74,13 +79,15 @@ __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 
 	}
 
+	printf("pValue: %f\n", pValue);
+
 //	for(int k = 0; k < tileWidthP; k++){
 //		Pvalue += M.elements[row*tileWidthP+k] * N.elements[k*tileWidthP+col];
 //	}
 
 	// set Pvalue
 	P.elements[row * P.width + col] += pValue;
-
+	printf("P.element: %f", P.elements[row * P.width + col]);
 }
 
 #endif // #ifndef _MATRIXMUL_KERNEL_H_

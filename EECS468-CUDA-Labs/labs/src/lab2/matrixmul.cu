@@ -167,8 +167,6 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	int tileWidthP = tileWidthN;
 	//
 	//
-	//
-	//
 
 	// Setup the execution configuration
 	dim3 DimGrid(1, 1);
@@ -186,7 +184,16 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	printf(" -- Kernel complete\n\n");
 
 	// Read P from the device
-	CopyFromDeviceMatrix(P, Pd); 
+	CopyFromDeviceMatrix(P, Pd);
+
+	printf("-- P --\n");
+	printf("P[-1]: %f\n", P.elements[P.width * P.height - 1]);
+//	for ( int row = 0; row < P.height; row++ ) {
+//		for ( int col = 0; col < P.width; col++ ) {
+//			printf("%f ", P.elements[row * P.width + col]);
+//		}
+//		printf("\n");
+//	}
 
 	// Free device matrices
 	FreeDeviceMatrix(&Md);
