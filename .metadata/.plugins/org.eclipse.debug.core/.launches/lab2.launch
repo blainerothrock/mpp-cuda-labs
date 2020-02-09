@@ -6,7 +6,6 @@
 <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_ID" value="com.nvidia.cuda.ide.debug.cudagdb"/>
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_START_MODE" value="run"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROGRAM_ARGUMENTS" value="/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2/ori_tests/dimensions.txt /home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2/ori_tests/matrix1.txt /home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2/ori_tests/matrix2.txt"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="labs/bin/linux/release/lab2"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="EECS468-CUDA-Labs"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="com.nvidia.cuda.ide.toolchain.base.1639315573"/>

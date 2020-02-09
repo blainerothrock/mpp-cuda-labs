@@ -118,13 +118,18 @@ int main(int argc, char** argv) {
 
 	printf("reference[-1]: %f\n", reference.elements[reference.height * reference.width - 1]);
 	printf("reference[0]: %f\n", reference.elements[0]);
-//	printf("-- REFERENCE --\n");
-//	for ( int row = 0; row < reference.height; row++ ) {
-//		for ( int col = 0; col < reference.width; col++ ) {
-//			printf("%f ", reference.elements[row * P.width + col]);
-//		}
-//		printf("\n");
-//	}
+	printf("-- REFERENCE --\n");
+	int count = 0;
+	for ( int row = 0; row < reference.height; row++ ) {
+		for ( int col = 0; col < reference.width; col++ ) {
+			printf("%f:%f\n", reference.elements[row * P.width + col], P.elements[row * P.width + col]);
+			count++;
+		}
+		if (count > 100) {
+			break;
+		}
+		printf("\n");
+	}
 	// //
         
 	printf("CPU computation complete\n");
@@ -185,16 +190,16 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	printf("P: (%i,%i)\n", P.height, P.width);
 
 	// TODO: make dynamic
-//	int tileHeightM = 17;
-//	int tileWidthM = 11;
-//	int tileHeightN = 11;
-//	int tileWidthN = 35;
+	int tileHeightM = 17;
+	int tileWidthM = 11;
+	int tileHeightN = 11;
+	int tileWidthN = 35;
 	//
 
-	int tileHeightM = 4;
-	int tileWidthM = 4;
-	int tileHeightN = 4;
-	int tileWidthN = 4;
+//	int tileHeightM = 4;
+//	int tileWidthM = 4;
+//	int tileHeightN = 4;
+//	int tileWidthN = 4;
 	///////////
 
 	int tileHeightP = tileHeightM;
@@ -202,7 +207,7 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	//
 
 	// Setup the execution configuration
-	dim3 DimGrid(4,4);
+	dim3 DimGrid(37,10);
 	dim3 DimBlock(tileHeightP, tileWidthP);
 	//printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
 	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);

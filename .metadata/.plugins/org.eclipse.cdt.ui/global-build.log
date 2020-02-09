@@ -5,38 +5,38 @@ make all
 make[1]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
 make[1]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
 make[1]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
-make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
-make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
-make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
-make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
-make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make -C src/lab1/ 
 make -C src/lab2/ 
-make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
 ./matrixmul_kernel.cu(77): warning: expression has no effect
 
-./matrixmul_kernel.cu(61): warning: variable "tileWidthM" was declared but never referenced
+./matrixmul_kernel.cu(56): warning: variable "tileWidthM" was declared but never referenced
 
-./matrixmul_kernel.cu(62): warning: variable "tileHeightN" was declared but never referenced
+./matrixmul_kernel.cu(57): warning: variable "tileHeightN" was declared but never referenced
 
-matrixmul.cu(195): warning: variable "tileWidthM" was declared but never referenced
+matrixmul.cu(194): warning: variable "tileWidthM" was declared but never referenced
 
-matrixmul.cu(196): warning: variable "tileHeightN" was declared but never referenced
+matrixmul.cu(195): warning: variable "tileHeightN" was declared but never referenced
 
 ./matrixmul_kernel.cu(77): warning: expression has no effect
 
-./matrixmul_kernel.cu(61): warning: variable "tileWidthM" was declared but never referenced
+./matrixmul_kernel.cu(56): warning: variable "tileWidthM" was declared but never referenced
 
-./matrixmul_kernel.cu(62): warning: variable "tileHeightN" was declared but never referenced
+./matrixmul_kernel.cu(57): warning: variable "tileHeightN" was declared but never referenced
 
-matrixmul.cu(195): warning: variable "tileWidthM" was declared but never referenced
+matrixmul.cu(194): warning: variable "tileWidthM" was declared but never referenced
 
-matrixmul.cu(196): warning: variable "tileHeightN" was declared but never referenced
+matrixmul.cu(195): warning: variable "tileHeightN" was declared but never referenced
 
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
 Finished building all
@@ -51,7 +51,32 @@ make[1]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EEC
 make[1]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
 make[1]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
+make -C src/lab1/ 
+make -C src/lab2/ 
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
+make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
+Finished building all
+make[1]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs'
+
+**** Build Finished ****
+
+**** Build of configuration Default for project EECS468-CUDA-Labs ****
+
+make all 
+make[1]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
+make[1]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
+make[1]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
@@ -60,8 +85,8 @@ make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make -C src/lab1/ 
 make -C src/lab2/ 
-make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
 Finished building all

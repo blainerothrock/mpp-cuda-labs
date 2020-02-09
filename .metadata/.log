@@ -586,3 +586,39 @@ Command-line arguments:  -os linux -ws gtk -arch x86_64
 
 !ENTRY org.eclipse.core.resources 2 10035 2020-02-09 14:23:08.733
 !MESSAGE The workspace exited with unsaved changes in the previous session; refreshing workspace to recover changes.
+
+!ENTRY org.eclipse.cdt.dsf 4 10005 2020-02-09 16:30:04.863
+!MESSAGE Request for monitor: 'RequestMonitor (org.eclipse.cdt.dsf.concurrent.RequestMonitorWithProgress@10d2866f): Status ERROR: org.eclipse.cdt.dsf.gdb code=5010 Timed out trying to launch GDB. null' resulted in an error.
+!SUBENTRY 1 org.eclipse.cdt.dsf.gdb 4 5010 2020-02-09 16:30:04.863
+!MESSAGE Timed out trying to launch GDB.
+
+!ENTRY org.eclipse.cdt.dsf.gdb 4 5012 2020-02-09 16:30:04.884
+!MESSAGE Error in services launch sequence
+!STACK 1
+org.eclipse.core.runtime.CoreException: Timed out trying to launch GDB.
+	at org.eclipse.cdt.dsf.concurrent.Sequence.abortExecution(Sequence.java:575)
+	at org.eclipse.cdt.dsf.concurrent.Sequence.access$4(Sequence.java:567)
+	at org.eclipse.cdt.dsf.concurrent.Sequence$2.handleErrorOrWarning(Sequence.java:424)
+	at org.eclipse.cdt.dsf.concurrent.RequestMonitor.handleFailure(RequestMonitor.java:392)
+	at org.eclipse.cdt.dsf.concurrent.RequestMonitor.handleCompleted(RequestMonitor.java:355)
+	at org.eclipse.cdt.dsf.concurrent.RequestMonitor$2.run(RequestMonitor.java:298)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:441)
+	at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:303)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:98)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:206)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.runTask(ThreadPoolExecutor.java:886)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:908)
+	at java.lang.Thread.run(Thread.java:662)
+!SUBENTRY 1 org.eclipse.cdt.dsf.gdb 4 5010 2020-02-09 16:30:04.885
+!MESSAGE Timed out trying to launch GDB.
+
+!ENTRY org.eclipse.core.jobs 4 2 2020-02-09 16:31:42.041
+!MESSAGE An internal error occurred during: "Start GDB Process Job".
+!STACK 0
+java.lang.IllegalStateException: RequestMonitor: Sequence "", result for executing step #0 = Status ERROR: org.eclipse.cdt.dsf code=10005 Request for monitor: 'RequestMonitor (org.eclipse.cdt.dsf.gdb.service.GDBBackend$GDBProcessStep$1@46f9bf97): Status OK: unknown code=0 OK null' resulted in a rejected execution exception. null, done() method called more than once
+	at org.eclipse.cdt.dsf.concurrent.RequestMonitor.done(RequestMonitor.java:281)
+	at org.eclipse.cdt.dsf.concurrent.RequestMonitor.handleRejectedExecutionException(RequestMonitor.java:485)
+	at org.eclipse.cdt.dsf.concurrent.RequestMonitor.done(RequestMonitor.java:306)
+	at org.eclipse.cdt.dsf.gdb.service.GDBBackend$GDBProcessStep$2.run(GDBBackend.java:552)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)

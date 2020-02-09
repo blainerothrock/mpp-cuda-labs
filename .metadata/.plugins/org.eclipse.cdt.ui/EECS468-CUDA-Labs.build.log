@@ -5,8 +5,8 @@ make all
 make[1]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
 make[1]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
 make[1]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs'
-make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/shared'
@@ -15,8 +15,8 @@ make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/common'
 make -C src/lab1/ 
 make -C src/lab2/ 
-make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
 make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
+make[2]: Entering directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab1'
 make[2]: Leaving directory `/home/nmh3011/Desktop/GithubRepos/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab2'
 Finished building all

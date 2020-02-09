@@ -52,15 +52,15 @@
 __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 {
 	// TODO: chdim3 DimGrid(1, 1);ange to be dynamic
-//	int tileHeightM = 17;
-//	int tileWidthM = 11;
-//	int tileHeightN = 11;
-//	int tileWidthN = 35;
+	int tileHeightM = 17;
+	int tileWidthM = 11;
+	int tileHeightN = 11;
+	int tileWidthN = 35;
 
-	int tileHeightM = 4;
-	int tileWidthM = 4;
-	int tileHeightN = 4;
-	int tileWidthN = 4;
+//	int tileHeightM = 4;
+//	int tileWidthM = 4;
+//	int tileHeightN = 4;
+//	int tileWidthN = 4;
 
 	int tileHeightP = tileHeightM;
 	int tileWidthP = tileWidthN;
