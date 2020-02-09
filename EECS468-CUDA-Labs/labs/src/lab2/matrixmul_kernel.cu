@@ -51,35 +51,34 @@
 // Matrix multiplication kernel thread specification
 __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 {
-	// TODO: change to be dynamic
+	// TODO: chdim3 DimGrid(1, 1);ange to be dynamic
 //	int tileHeightM = 17;
 //	int tileWidthM = 11;
 //	int tileHeightN = 11;
 //	int tileWidthN = 35;
 
-	int tileHeightM = 2;
-	int tileWidthM = 2;
-	int tileHeightN = 2;
-	int tileWidthN = 2;
+	int tileHeightM = 4;
+	int tileWidthM = 4;
+	int tileHeightN = 4;
+	int tileWidthN = 4;
 
 	int tileHeightP = tileHeightM;
 	int tileWidthP = tileWidthN;
 
 	// get row idx of Pd and M and col index of Pd and N
-	int col = blockIdx.y*tileHeightM + threadIdx.y;
-	int row = blockIdx.x*tileWidthN + threadIdx.x;
+	int row = blockIdx.y*tileHeightP + threadIdx.y;
+	int col = blockIdx.x*tileWidthP + threadIdx.x;
 
 //	printf("row: %i\n", row);
 //	printf("col: %i\n", col);
 
 	float pValue = 0.0f;
 
-	for (int k = 0, j = 0; k<tileWidthP, j<tileHeightP; k++, j++) {
+	for (int k = 0, j = 0; k<M.width , j<N.height; ++k, ++j) {
 		pValue += M.elements[row*M.width+k] * N.elements[j*N.width+col];
-
 	}
 
-	printf("pValue: %f\n", pValue);
+//	printf("pValue: %f\n", pValue);
 
 //	for(int k = 0; k < tileWidthP; k++){
 //		Pvalue += M.elements[row*tileWidthP+k] * N.elements[k*tileWidthP+col];
@@ -87,7 +86,7 @@ __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 
 	// set Pvalue
 	P.elements[row * P.width + col] += pValue;
-	printf("P.element: %f", P.elements[row * P.width + col]);
+//	printf("P.element: %f\n", P.elements[row * P.width + col]);
 }
 
 #endif // #ifndef _MATRIXMUL_KERNEL_H_

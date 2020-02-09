@@ -577,3 +577,12 @@ java.lang.IllegalStateException: RequestMonitor: Sequence "", result for executi
 	at org.eclipse.cdt.dsf.concurrent.RequestMonitor.done(RequestMonitor.java:306)
 	at org.eclipse.cdt.dsf.gdb.service.GDBBackend$GDBProcessStep$2.run(GDBBackend.java:552)
 	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:54)
+!SESSION 2020-02-09 14:23:05.216 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=1.6.0_24
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_US
+Command-line arguments:  -os linux -ws gtk -arch x86_64
+
+!ENTRY org.eclipse.core.resources 2 10035 2020-02-09 14:23:08.733
+!MESSAGE The workspace exited with unsaved changes in the previous session; refreshing workspace to recover changes.

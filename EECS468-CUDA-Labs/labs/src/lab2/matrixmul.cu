@@ -115,6 +115,17 @@ int main(int argc, char** argv) {
 	// compute the matrix multiplication on the CPU for comparison
 	Matrix reference = AllocateMatrix(P.height, P.width, 0);
 	computeGold(reference.elements, M.elements, N.elements, M.height, M.width, N.width);
+
+	printf("reference[-1]: %f\n", reference.elements[reference.height * reference.width - 1]);
+	printf("reference[0]: %f\n", reference.elements[0]);
+//	printf("-- REFERENCE --\n");
+//	for ( int row = 0; row < reference.height; row++ ) {
+//		for ( int col = 0; col < reference.width; col++ ) {
+//			printf("%f ", reference.elements[row * P.width + col]);
+//		}
+//		printf("\n");
+//	}
+	// //
         
 	printf("CPU computation complete\n");
 	// in this case check if the result is equivalent to the expected soluion
@@ -148,6 +159,22 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	Matrix Nd = AllocateDeviceMatrix(N);
 	CopyToDeviceMatrix(Nd, N);
 
+//	printf("-- M --\n");
+//	for ( int row = 0; row < M.height; row++ ) {
+//		for ( int col = 0; col < M.width; col++ ) {
+//			printf("%f ", M.elements[row * M.width + col]);
+//		}
+//		printf("\n");
+//	}
+//
+//	printf("-- N --\n");
+//	for ( int row = 0; row < N.height; row++ ) {
+//		for ( int col = 0; col < N.width; col++ ) {
+//			printf("%f ", N.elements[row * N.width + col]);
+//		}
+//		printf("\n");
+//	}
+
 	// Allocate P on the device
 	Matrix Pd = AllocateDeviceMatrix(P);
 	CopyToDeviceMatrix(Pd, P); // Clear memory
@@ -158,18 +185,24 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	printf("P: (%i,%i)\n", P.height, P.width);
 
 	// TODO: make dynamic
-	int tileHeightM = 17;
-	int tileWidthM = 11;
-	int tileHeightN = 11;
-	int tileWidthN = 35;
+//	int tileHeightM = 17;
+//	int tileWidthM = 11;
+//	int tileHeightN = 11;
+//	int tileWidthN = 35;
+	//
+
+	int tileHeightM = 4;
+	int tileWidthM = 4;
+	int tileHeightN = 4;
+	int tileWidthN = 4;
+	///////////
 
 	int tileHeightP = tileHeightM;
 	int tileWidthP = tileWidthN;
 	//
-	//
 
 	// Setup the execution configuration
-	dim3 DimGrid(1, 1);
+	dim3 DimGrid(4,4);
 	dim3 DimBlock(tileHeightP, tileWidthP);
 	//printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
 	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
@@ -186,8 +219,11 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	// Read P from the device
 	CopyFromDeviceMatrix(P, Pd);
 
-	printf("-- P --\n");
-	printf("P[-1]: %f\n", P.elements[P.width * P.height - 1]);
+
+	printf("P[0]: %f\n", P.elements[0]);
+	printf("P[-1]: %f\n", P.elements[P.height * P.width - 1]);
+
+//	printf("-- P --\n");
 //	for ( int row = 0; row < P.height; row++ ) {
 //		for ( int col = 0; col < P.width; col++ ) {
 //			printf("%f ", P.elements[row * P.width + col]);
