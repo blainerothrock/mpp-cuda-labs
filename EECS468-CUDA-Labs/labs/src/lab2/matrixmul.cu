@@ -207,8 +207,8 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	//
 
 	// Setup the execution configuration
-	dim3 DimGrid(37,10);
-	dim3 DimBlock(tileHeightP, tileWidthP);
+	dim3 DimGrid(10,37);
+	dim3 DimBlock(tileWidthP, tileHeightP);
 	//printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
 	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
 
