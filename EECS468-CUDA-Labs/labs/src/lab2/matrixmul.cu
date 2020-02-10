@@ -49,6 +49,8 @@
 // includes, kernels
 #include <matrixmul_kernel.cu>
 
+const int MAX_THREADS = 1024;
+
 ////////////////////////////////////////////////////////////////////////////////
 // declarations, forward
 
@@ -118,18 +120,18 @@ int main(int argc, char** argv) {
 
 	printf("reference[-1]: %f\n", reference.elements[reference.height * reference.width - 1]);
 	printf("reference[0]: %f\n", reference.elements[0]);
-	printf("-- REFERENCE --\n");
-	int count = 0;
-	for ( int row = 0; row < reference.height; row++ ) {
-		for ( int col = 0; col < reference.width; col++ ) {
-			printf("%f:%f\n", reference.elements[row * P.width + col], P.elements[row * P.width + col]);
-			count++;
-		}
-		if (count > 100) {
-			break;
-		}
-		printf("\n");
-	}
+//	printf("-- REFERENCE --\n");
+//	int count = 0;
+//	for ( int row = 0; row < reference.height; row++ ) {
+//		for ( int col = 0; col < reference.width; col++ ) {
+//			printf("%f:%f\n", reference.elements[row * P.width + col], P.elements[row * P.width + col]);
+//			count++;
+//		}
+//		if (count > 100) {
+//			break;
+//		}
+//		printf("\n");
+//	}
 	// //
         
 	printf("CPU computation complete\n");
@@ -189,25 +191,33 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	printf("N: (%i,%i)\n", N.height, N.width);
 	printf("P: (%i,%i)\n", P.height, P.width);
 
-	// TODO: make dynamic
-	int tileHeightM = 17;
-	int tileWidthM = 11;
-	int tileHeightN = 11;
-	int tileWidthN = 35;
-	//
+	// dynamic dim
+	int tmp_h = 0;
+	int tmp_w = 0;
+	for (int i = 1, j = 1; i < M.height, j < N.width; ++i, ++j) {
+		if (M.height % i == 0) {
+			if (i * tmp_w < MAX_THREADS) {
+				tmp_h = i;
+			} else { break; }
 
-//	int tileHeightM = 4;
-//	int tileWidthM = 4;
-//	int tileHeightN = 4;
-//	int tileWidthN = 4;
-	///////////
+		}
 
-	int tileHeightP = tileHeightM;
-	int tileWidthP = tileWidthN;
-	//
+		if (N.width % j == 0) {
+			if (tmp_h * j < MAX_THREADS) {
+				tmp_w = j;
+			} else { break; }
+		}
+	}
+
+	printf("tmp_h: %i", tmp_h);
+	printf("tmp_w: %i", tmp_w);
+
+	int tileHeightP = tmp_h;
+	int tileWidthP = tmp_w;
+	////
 
 	// Setup the execution configuration
-	dim3 DimGrid(10,37);
+	dim3 DimGrid(P.width/tmp_w, P.height/tmp_h);
 	dim3 DimBlock(tileWidthP, tileHeightP);
 	//printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
 	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
@@ -234,7 +244,7 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 //			printf("%f ", P.elements[row * P.width + col]);
 //		}
 //		printf("\n");
-//	}
+//	}//
 
 	// Free device matrices
 	FreeDeviceMatrix(&Md);
