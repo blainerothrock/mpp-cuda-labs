@@ -50,6 +50,7 @@
 #include <matrixmul_kernel.cu>
 
 const int MAX_THREADS = 1024;
+const int MAX_STRIDE = 50;
 
 ////////////////////////////////////////////////////////////////////////////////
 // declarations, forward
@@ -209,18 +210,34 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 		}
 	}
 
+	int tmp_stride = 0;
+	for (int i = 1; i < M.width; ++i) {
+		if (M.width % i == 0) {
+			if (i < MAX_STRIDE) {
+				tmp_stride = i;
+			} else { break; }
+		}
+	}
+
 	printf("tmp_h: %i", tmp_h);
 	printf("tmp_w: %i", tmp_w);
+	printf("tmp_stride: %i", tmp_stride);
 
 	int tileHeightP = tmp_h;
 	int tileWidthP = tmp_w;
-	////
 
-	// Setup the execution configuration
+	int *stride, *stride_d;
+	*stride = tmp_stride;
+
+	cudaMalloc((void **)&stride_d, sizeof(int));
+	cudaMemcpy(stride_d, stride, sizeof(int), cudaMemcpyHostToDevice);
+
+
+	// Setup the execution configuration /
 	dim3 DimGrid(P.width/tmp_w, P.height/tmp_h);
 	dim3 DimBlock(tileWidthP, tileHeightP);
 	//printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
-	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
+	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd, stride_d);
 
 	// Launch the device computation threads!
 	printf(" -- Waiting for Kernel to complete\n\n");

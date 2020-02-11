@@ -49,23 +49,37 @@
 //! @param g_odata  output data in global memory
 ////////////////////////////////////////////////////////////////////////////////
 // Matrix multiplication kernel thread specification
-__global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
+__global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P, int *stride)
 {
-//	__shared__ float subM[M.width][blockDim.y];
-//	__shared__ float subN[blockDim.x][N.height];
-//
-//
-//
+	__shared__ float subM[blockDim.y][blockDim.x];
+	__shared__ float subN[blockDim.x][blockDim.y];
+
 
 	int row = blockIdx.y*blockDim.y + threadIdx.y;
 	int col = blockIdx.x*blockDim.x + threadIdx.x;
-	// get row idx of Pd and M and col index of Pd and N
 
 	float pValue = 0.0f;
 
+//	for (int i = 0; i < M.width; ++i) {
+//		for (int j = blockIdx.x * blockDim.x; j < (blockIdx.x * blockDim.x) + blockDim.x; ++j) {
+//			subM[i][j] = M.elements[i * M.width * j];
+//			__syncthreads();
+//		}
+//	}
+//
+//	for (int i = 0; i < blockDim.x; ++i) {
+//		for (int j = blockIdx.y * blockDim.y; j < (blockIdx.y * blockDim.y) + blockDim.y; ++j) {
+//			subN[i][j] = N.elements(j * N.width + i);
+//			__syncthreads();
+//		}
+//	}
+
+
+
 	int count = 0;
 	for (int i = 0, j = 0; i<M.width , j<N.height; ++i, ++j) {
-		pValue += M.elements[row*M.width+i] * N.elements[j*N.width+col];
+//		pValue += subM[i][row*M.width] * subN[j]
+//		pValue += M.elements[row*M.width+i] * N.elements[j*N.width+col];
 		count++;
 	}
 
