@@ -234,6 +234,7 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	int tileWidthP = tmp_w;
     size_t sharedMemSize = ((tmp_stride * tileHeightP) + (tileWidthP * tmp_stride)) * sizeof(float);
     printf("sharedMemSize: %i\n", sharedMemSize);
+    ///
 
 	// Setup the execution configuration /
 	dim3 DimGrid(P.width/tmp_w, P.height/tmp_h);
@@ -247,6 +248,7 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	cudaError_t code;
 	code = cudaGetLastError();
 	printf("error: %s\n", cudaGetErrorString(code));
+	//
 
 	printf(" -- Kernel complete\n\n");
 
@@ -263,7 +265,7 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 //			printf("%f ", P.elements[row * P.width + col]);
 //		}
 //		printf("\n");
-//	}//
+//	}////
 
 	// Free device matrices
 	FreeDeviceMatrix(&Md);

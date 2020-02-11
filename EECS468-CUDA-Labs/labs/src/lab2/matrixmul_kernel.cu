@@ -68,16 +68,20 @@ __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P, int *stride)
 	int col = blockIdx.x*blockDim.x + threadIdx.x;
 
 	float pValue = 0.0f;
+//	printf("stride: %i\n", *stride);
 
 	for (int k = 0; k < M.width / *stride; ++k) {
-	    smem[k * (bx * *stride) + ty] = M.elements[(by * *stride * M.width) + (k * *stride + tx)];
-	    smem[(*stride * blockDim.y) + (k * (bx * *stride) + tx)] = N.elements[((k * *stride) * N.width) + tx];
+	    smem[(ty * *stride) + tx] = M.elements[((by) * blockDim.y + ty) + (k * *stride) + tx];
+	    smem[(*stride * blockDim.y) + (ty * blockDim.x) + tx] = N.elements[((k * *stride + ty) + (bx * blockDim.x + tx))];
+
 	    __syncthreads();
 
-        for (int i, j = 0; i<blockDim.x, j<blockDim.y; ++i, ++j) {
-            pValue += smem[ty * i] * smem[(*stride * blockDim.y) + i * tx];
-        }
-        __syncthreads();
+//        printf("k: %i\n", k);
+
+//        for (int i, j = 0; i<blockDim.x, j<blockDim.y; ++i, ++j) {
+//            pValue += smem[ty * i] * smem[(*stride * blockDim.y) + i * tx];
+//        }
+//        __syncthreads();
 	}
     P.elements[row * P.width + col] = pValue;
 
