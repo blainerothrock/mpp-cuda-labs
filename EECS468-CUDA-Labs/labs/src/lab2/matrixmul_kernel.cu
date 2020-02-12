@@ -43,6 +43,8 @@
 #include <stdio.h>
 #include "matrixmul.h"
 
+#define TILE_WIDTH 16
+
 ////////////////////////////////////////////////////////////////////////////////
 //! Simple test kernel for device functionality
 //! @param g_idata  input data in global memory
@@ -51,26 +53,49 @@
 // Matrix multiplication kernel thread specification
 __global__ void MatrixMulKernel(Matrix M, Matrix N, Matrix P)
 {
-//	__shared__ float subM[M.width][blockDim.y];
-//	__shared__ float subN[blockDim.x][N.height];
-//
-//
-//
+	__shared__ float subM[TILE_WIDTH][TILE_WIDTH];
+	__shared__ float subN[TILE_WIDTH][TILE_WIDTH];
 
-	int row = blockIdx.y*blockDim.y + threadIdx.y;
-	int col = blockIdx.x*blockDim.x + threadIdx.x;
-	// get row idx of Pd and M and col index of Pd and N
+	const int tx = threadIdx.x;
+	const int ty = threadIdx.y;
+	const int by = blockIdx.y;
+	const int bx = blockIdx.x;
+
+	const int j = M.height; // or P.height
+	const int k = M.width; // or N.height
+	const int l = N.width; // or P.width
+
+	int row = by*TILE_WIDTH+ty;
+	int col = bx*TILE_WIDTH+tx;
 
 	float pValue = 0.0f;
 
-	int count = 0;
-	for (int i = 0, j = 0; i<M.width , j<N.height; ++i, ++j) {
-		pValue += M.elements[row*M.width+i] * N.elements[j*N.width+col];
-		count++;
+	for (int i = 0; i < (int)ceil(k/(float)TILE_WIDTH); ++i) {
+
+		if ((row<j) && (i*TILE_WIDTH+tx) < k) {
+			subM[ty][tx] = M.elements[row*k + i*TILE_WIDTH + tx];
+		} else {
+			subM[ty][tx] = 0.0f;
+		}
+
+		if ((i*TILE_WIDTH+ty) < k && col<l) {
+			subN[ty][tx] = N.elements[(i*TILE_WIDTH+ty) * l + col];
+		} else {
+			subN[ty][tx] = 0.0f;
+		}
+
+		__syncthreads();
+
+		for (int idx = 0; idx < TILE_WIDTH; ++idx) {
+			pValue += subM[ty][idx] * subN[idx][tx];
+		}
+
+		__syncthreads();
 	}
 
-
-	P.elements[row * P.width + col] += pValue;
+	if ((row<j) && (col<l)) {
+		P.elements[row * l + col] = pValue;
+	}
 }
 
 #endif // #ifndef _MATRIXMUL_KERNEL_H_
