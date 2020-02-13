@@ -49,10 +49,6 @@
 // includes, kernels
 #include <matrixmul_kernel.cu>
 
-#define TILE_WIDTH 16
-
-const int MAX_THREADS = 1024;
-
 ////////////////////////////////////////////////////////////////////////////////
 // declarations, forward
 
@@ -80,7 +76,7 @@ int main(int argc, char** argv) {
 	Matrix  P;
 	int errorM = 0, errorN = 0;
 	
-	srand(42);
+	srand(52);
 	
 	if(argc != 5 && argc != 4) 
 	{
@@ -183,10 +179,10 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	Matrix Pd = AllocateDeviceMatrix(P);
 	CopyToDeviceMatrix(Pd, P); // Clear memory //
 
-//	printf("M * N = P\n");
-//	printf("M: (%i,%i)\n", M.height, M.width);
-//	printf("N: (%i,%i)\n", N.height, N.width);
-//	printf("P: (%i,%i)\n", P.height, P.width);
+	printf("M * N = P\n");
+	printf("M: (%i,%i)\n", M.height, M.width);
+	printf("N: (%i,%i)\n", N.height, N.width);
+	printf("P: (%i,%i)\n", P.height, P.width);
 
 	// Setup the execution configuration
 	dim3 DimGrid(ceil(P.width/(float)TILE_WIDTH), ceil(P.height/(float)TILE_WIDTH));
