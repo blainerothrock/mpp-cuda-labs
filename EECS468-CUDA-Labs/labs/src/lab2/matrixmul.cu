@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 	Matrix  P;
 	int errorM = 0, errorN = 0;
 	
-	srand(52);
+	srand(42);
 	
 	if(argc != 5 && argc != 4) 
 	{
@@ -183,16 +183,15 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 	Matrix Pd = AllocateDeviceMatrix(P);
 	CopyToDeviceMatrix(Pd, P); // Clear memory //
 
-	printf("M * N = P\n");
-	printf("M: (%i,%i)\n", M.height, M.width);
-	printf("N: (%i,%i)\n", N.height, N.width);
-	printf("P: (%i,%i)\n", P.height, P.width);
+//	printf("M * N = P\n");
+//	printf("M: (%i,%i)\n", M.height, M.width);
+//	printf("N: (%i,%i)\n", N.height, N.width);
+//	printf("P: (%i,%i)\n", P.height, P.width);
 
 	// Setup the execution configuration
-//	printf("DimGrid: %f:%f\n", ceil(P.width/(float)TILE_WIDTH), ceil(P.height/(float)TILE_WIDTH));
 	dim3 DimGrid(ceil(P.width/(float)TILE_WIDTH), ceil(P.height/(float)TILE_WIDTH));
 	dim3 DimBlock(TILE_WIDTH, TILE_WIDTH);
-	//printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
+//	printf(" -- Starting Kernel func from host with %ix%i and %ix%i matrix\n\n", Md.width, Md.height Nd.width, Nd.height);
 	MatrixMulKernel<<<DimGrid, DimBlock>>>(Md, Nd, Pd);
 
 	// Launch the device computation threads!
@@ -206,17 +205,6 @@ void MatrixMulOnDevice(const Matrix M, const Matrix N, Matrix P)
 
 	// Read P from the device
 	CopyFromDeviceMatrix(P, Pd);
-
-
-//	printf("P[0]: %f\n", P.elements[0]);
-//	printf("P[-1]: %f\n", P.elements[P.height * P.width - 1]);
-
-//	printf("-- P --\n");
-//	for ( int row = 0; row < P.height; row++ ) {
-//		for ( int col = 0; col < P.width; col++ ) {
-//			printf("%f ", P.elements[row * P.width + col]);
-//		}
-//		printf("\n");
 
 	// Free device matrices
 	FreeDeviceMatrix(&Md);
