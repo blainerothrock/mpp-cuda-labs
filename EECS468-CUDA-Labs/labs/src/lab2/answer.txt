@@ -1,0 +1,13 @@
+2048 (max number of threads) * 8 (# of SMs on the GTX-680) = 16,384 ?????
+
+Or run query to get this???
+
+
+OTHER NOTES;
+We choose TILE_WIDTH to be 16. Note that a block is limited to 1024 threads. So if we have 1 block per tile, then we have 16*16=256 which is well below 1024. The reason we don’t choose 16 to be larger is because the max number of threads per SM is 2048. Thus, we can have 2048/(16*16) = 8 blocks per SM. If we chose tile size to be 32, we would only have 2048/(32*32) = 2 blocks per SM.
+
+Shared memory calculation (size is 48KB or 49,152):
+TILE_WIDTH^2 * # of tiles (for M, N, P) * sizeof(float) = shared memory usage
+16*16*3*4 = 3,072 << 49,152
+
+So there is plenty of room left over in shared memory for the compiler to use.
