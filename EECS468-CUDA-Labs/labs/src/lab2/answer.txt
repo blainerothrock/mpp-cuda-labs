@@ -1,3 +1,8 @@
+Blaine Rothrock (BRY4768)
+Grant Gasser (GGL8333)
+Nayan Mehta (NMH3011)
+
+
 2048 (max number of threads) * 8 (# of SMs on the GTX-680 as seen on picture from slides) = 16,384
 
 We can also verify there are 8 SMs because there are 192 CUDA cores in an SM and 1536 CUDA cores on a GTX680. Thus 1536/192 = 8 SMs. 
