@@ -10,6 +10,8 @@
 #include "ref_2dhisto.h"
 #include "opt_2dhisto.h"
 
+using namespace std;
+
 #define SQRT_2    1.4142135623730950488
 #define SPREAD_BOTTOM   (2)
 #define SPREAD_TOP      (6)
@@ -83,20 +85,39 @@ int main(int argc, char* argv[])
     // being associated with a pixel in a 2D image.
     uint32_t **input = generate_histogram_bins();
 
-    TIME_IT("ref_2dhisto",
-            1000,
-            ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
+//    TIME_IT("ref_2dhisto",
+//            1000,
+//            ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
 
     /* Include your setup code below (temp variables, function calls, etc.) */
 
+//    for (int i=0;i<INPUT_HEIGHT; i++){
+//        for (int j=0;j<INPUT_WIDTH;j++){
+//            cout<<input[i][j]<<" ";
+//        }
+//    }
+//    cout<<INPUT_HEIGHT<<" "<<INPUT_WIDTH<<endl;
 
+//    for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
+//        printf("%u ",gold_bins[i]);
+//    }
+
+    printf("allocating cuda\n");
+    uint32_t *input_d = allocCopyInput(input, INPUT_WIDTH, INPUT_HEIGHT);
+    uint8_t *bins_d = allocCopyBin(kernel_bins);
+    size_t *inputWidth_d = allocCopyDim(INPUT_WIDTH);
+    size_t *inputHeight_d = allocCopyDim(INPUT_HEIGHT);
+
+
+    printf("calling kernel caller\n");
+    opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );
 
     /* End of setup code */
 
     /* This is the call you will use to time your parallel implementation */
-    TIME_IT("opt_2dhisto",
-            1000,
-            opt_2dhisto( /*Define your own function parameters*/ );)
+//    TIME_IT("opt_2dhisto",
+//            1000,
+//            opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );)
 
     /* Include your teardown code below (temporary variables, function calls, etc.) */
 
