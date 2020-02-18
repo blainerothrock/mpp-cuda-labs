@@ -5,26 +5,31 @@
 #include <cutil.h>
 #include "util.h"
 #include "ref_2dhisto.h"
+#include "opt_2dhisto.h"
 
-__global__ void opt_2dhisto_kernel(uint32_t input[], size_t *inputHeight, size_t *inputWidth, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH])
+__global__ void opt_2dhisto_kernel(uint32_t **input, size_t *inputHeight, size_t *inputWidth, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH])
 {
     printf("Hello I am Kernel %i, %i\n", *inputWidth, *inputHeight);
 }
 
-uint32_t * allocCopyInput(uint32_t *input[], size_t width, size_t height)
+uint32_t ** allocCopyInput(uint32_t **input, size_t width, size_t height)
 {
-    uint32_t flattenedInput[width*height];
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            flattenedInput[i * width + j] = input[i][j];
-        }
-    }
+    // TRIED TO FLATTEN TO FIX SEG FAULT, DIDN'T WORK
+//    uint32_t flattenedInput[width*height];
+//    for (int i = 0; i < height; i++) {
+//        for (int j = 0; j < width; j++) {
+//            flattenedInput[i * width + j] = 0;
+//        }
+//    }
 
-    uint32_t *input_d;
+    //printf("starting cudamalloc");
+    ////
+
+    uint32_t **input_d;
     int sizeInput = width*height*sizeof(uint32_t);
     cudaError_t allocError = cudaMalloc((void **)&input_d, sizeInput);
     printf("input alloc error: %s\n", cudaGetErrorString(allocError));
-    cudaError_t cpyError = cudaMemcpy(input_d, flattenedInput, sizeInput, cudaMemcpyHostToDevice);
+    cudaError_t cpyError = cudaMemcpy(input_d, input, sizeInput, cudaMemcpyHostToDevice);
     printf("input cpy error: %s\n", cudaGetErrorString(cpyError));
     return input_d;
 }
@@ -50,8 +55,16 @@ size_t * allocCopyDim(size_t inputDim)
     return inputDim_d;
 }
 
+void freeMemory(uint32_t **input, size_t *height, size_t *width, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH] ){
+	printf("Freeing memory\n");
+	cudaFree(&input);
+	cudaFree(height);
+	cudaFree(width);
+	cudaFree(bins);
+}
 
-void opt_2dhisto( uint32_t input[], size_t *height, size_t *width, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH] )
+
+void opt_2dhisto( uint32_t **input, size_t *height, size_t *width, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH] )
 {
     dim3 DimGrid(1,1);
     dim3 DimBlock(HISTO_HEIGHT, HISTO_WIDTH);
@@ -66,7 +79,7 @@ void opt_2dhisto( uint32_t input[], size_t *height, size_t *width, uint8_t bins[
     printf("error: %s\n", cudaGetErrorString(error));
 }
 
-/* Include below the implementation of any other functions you need */
+/* Include below the implementation of any other functions you need */ //
 
 
 

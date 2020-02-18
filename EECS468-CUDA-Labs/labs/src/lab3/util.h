@@ -2,8 +2,8 @@
 #define UTIL_H__
 
 #define __USE_BSD 1
-#define INPUT_WIDTH  512
-#define INPUT_HEIGHT 512
+#define INPUT_WIDTH  3984
+#define INPUT_HEIGHT 4096
 
 
 #include <stdio.h>

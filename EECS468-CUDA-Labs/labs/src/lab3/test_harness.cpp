@@ -84,6 +84,8 @@ int main(int argc, char* argv[])
     // A 2D array of histogram bin-ids.  One can think of each of these bins-ids as
     // being associated with a pixel in a 2D image.
     uint32_t **input = generate_histogram_bins();
+    printf("hello");
+
 
 //    TIME_IT("ref_2dhisto",
 //            1000,
@@ -100,15 +102,17 @@ int main(int argc, char* argv[])
 
 //    for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
 //        printf("%u ",gold_bins[i]);
-//    }
+//    } ////
 
     printf("allocating cuda\n");
-    uint32_t *input_d = allocCopyInput(input, INPUT_WIDTH, INPUT_HEIGHT);
+    //printf("HELLLOOOOOO");
+
+    uint32_t **input_d = allocCopyInput(input, INPUT_WIDTH, INPUT_HEIGHT);
     uint8_t *bins_d = allocCopyBin(kernel_bins);
     size_t *inputWidth_d = allocCopyDim(INPUT_WIDTH);
     size_t *inputHeight_d = allocCopyDim(INPUT_HEIGHT);
 
-
+//
     printf("calling kernel caller\n");
     opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );
 
@@ -121,7 +125,7 @@ int main(int argc, char* argv[])
 
     /* Include your teardown code below (temporary variables, function calls, etc.) */
 
-
+    freeMemory(input_d, inputHeight_d, inputWidth_d, bins_d );
 
     /* End of teardown code */
 
