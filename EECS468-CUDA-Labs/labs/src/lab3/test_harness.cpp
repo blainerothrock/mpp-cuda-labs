@@ -10,6 +10,9 @@
 #include "ref_2dhisto.h"
 #include "opt_2dhisto.h"
 
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
+
 using namespace std;
 
 #define SQRT_2    1.4142135623730950488
@@ -107,10 +110,12 @@ int main(int argc, char* argv[])
     printf("allocating cuda\n");
     //printf("HELLLOOOOOO");
 
-    uint32_t **input_d = allocCopyInput(input, INPUT_WIDTH, INPUT_HEIGHT);
+    uint32_t *input_d = allocCopyInput(input, INPUT_WIDTH, INPUT_HEIGHT);
     uint8_t *bins_d = allocCopyBin(kernel_bins);
     size_t *inputWidth_d = allocCopyDim(INPUT_WIDTH);
     size_t *inputHeight_d = allocCopyDim(INPUT_HEIGHT);
+
+    printf("input 1001, 200 %"PRIu32"\n", input[1001][200]);
 
 //
     printf("calling kernel caller\n");
