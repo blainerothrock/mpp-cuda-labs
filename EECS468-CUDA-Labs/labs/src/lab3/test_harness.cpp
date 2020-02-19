@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 
 //    for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
 //        printf("%u ",gold_bins[i]);
-//    } ////
+//    } ////////
 
     printf("allocating cuda\n");
     //printf("HELLLOOOOOO");

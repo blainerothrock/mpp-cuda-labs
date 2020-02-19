@@ -26,10 +26,11 @@ uint32_t ** allocCopyInput(uint32_t **input, size_t width, size_t height)
     ////
 
     uint32_t **input_d;
+    uint32_t *input_device;
     int sizeInput = width*height*sizeof(uint32_t);
     cudaError_t allocError = cudaMalloc((void **)&input_d, sizeInput);
     printf("input alloc error: %s\n", cudaGetErrorString(allocError));
-    cudaError_t cpyError = cudaMemcpy(input_d, input, sizeInput, cudaMemcpyHostToDevice);
+    cudaError_t cpyError = cudaMemcpy(&input_device, input, sizeInput, cudaMemcpyHostToDevice);
     printf("input cpy error: %s\n", cudaGetErrorString(cpyError));
     return input_d;
 }
