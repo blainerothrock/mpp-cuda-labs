@@ -14,15 +14,7 @@ __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t 
 
 uint32_t * allocCopyInput(uint32_t **input, size_t width, size_t height)
 {
-    // TRIED TO FLATTEN TO FIX SEG FAULT, DIDN'T WORK
-//    uint32_t flattenedInput[width*height];
-//    for (int i = 0; i < height; i++) {
-//        for (int j = 0; j < width; j++) {
-//            flattenedInput[i * width + j] = 0;
-//        }
-//    }
-
-    //printf("starting cudamalloc");
+    // solution from http://www.trevorsimonton.com/blog/2016/11/16/transfer-2d-array-memory-to-cuda.html
     uint32_t** flattenedRepresentation = new uint32_t*[height];
     flattenedRepresentation[0] = new uint32_t[height * width];
     for (int i = 1; i < height; ++i) flattenedRepresentation[i] = flattenedRepresentation[i-1] + width;
