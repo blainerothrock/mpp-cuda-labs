@@ -7,9 +7,36 @@
 #include "ref_2dhisto.h"
 #include "opt_2dhisto.h"
 
+__device__ void atomicAdd(uint8_t *address, uint8_t val) {
+    unsigned int * address_as_ui = (unsigned int *) (address - ((size_t)address & 0x3));
+    unsigned int old = *address_as_ui;
+    unsigned int shift = (((size_t)address & 0x3) << 3);
+    unsigned int sum;
+    unsigned int assumed;
+
+    do {
+        assumed = old;
+        sum = val + static_cast<uint8_t>((old >> shift) & 0xff);
+        old = (old & ~(0x000000ff << shift)) | (sum << shift);
+        old = atomicCAS(address_as_ui, assumed, old);
+    } while (assumed != old);
+}
+
 __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH])
 {
-    printf("Hello I am Kernel %u\n", (unsigned)input[1001 * *inputWidth + 200]);
+    int size = *inputHeight * *inputWidth;
+    int i = threadIdx.x + blockIdx.x * blockDim.x;
+    int sectionSize = (size-1) / (blockDim.x * gridDim.x)+1;
+    int start = i*sectionSize;
+
+    for (int k=0; k < sectionSize; k++) {
+        if (start+k < size) {
+            uint32_t pos = input[start+k];
+            if (bins[pos] < 255) {
+                atomicAdd(&(bins[pos]), 1);
+            }
+        }
+    }
 }
 
 uint32_t * allocCopyInput(uint32_t **input, size_t width, size_t height)
@@ -71,7 +98,7 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint8_t bins[H
 {
     dim3 DimGrid(1,1);
 //    dim3 DimBlock(HISTO_HEIGHT, HISTO_WIDTH);
-    dim3 DimBlock(1, 1);
+    dim3 DimBlock(255);
 
     unsigned int BIN_COUNT= HISTO_HEIGHT*HISTO_WIDTH;
     printf("\n\n--- starting kernel ---\n\n");
