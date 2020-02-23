@@ -31,6 +31,7 @@ uint32_t * allocCopyInput(uint32_t **input, size_t width, size_t height)
     cudaError_t allocError = cudaMalloc((void **)&input_d, sizeInput);
     printf("input alloc error: %s\n", cudaGetErrorString(allocError));
     cudaError_t cpyError = cudaMemcpy(input_d, flattenedRepresentation[0], sizeInput, cudaMemcpyHostToDevice);
+    delete [] flattenedRepresentation;
     printf("input cpy error: %s\n", cudaGetErrorString(cpyError));
     return input_d;
 }
@@ -60,10 +61,14 @@ size_t * allocCopyDim(size_t inputDim)
 
 void freeMemory(uint32_t *input, size_t *height, size_t *width, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH] ){
 	printf("Freeing memory\n");
-	cudaFree(&input);
+	cudaFree(input);
+	input = NULL;
 	cudaFree(height);
+	height = NULL;
 	cudaFree(width);
+	width = NULL;
 	cudaFree(bins);
+	bins = NULL;
 }
 
 
