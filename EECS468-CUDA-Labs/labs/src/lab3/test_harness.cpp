@@ -91,8 +91,9 @@ int main(int argc, char* argv[])
 
     // TODO: reset 1 => 1000
     //ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);
+    int numTimingRuns = 1;
     TIME_IT("ref_2dhisto",
-            1,
+    		numTimingRuns,
             ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
 
     /* Include your setup code below (temp variables, function calls, etc.) */
@@ -120,14 +121,14 @@ int main(int argc, char* argv[])
 
 //
     printf("calling kernel caller\n");
-    opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );
+//    opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );
 
     /* End of setup code */
 
     /* This is the call you will use to time your parallel implementation */
-//    TIME_IT("opt_2dhisto",
-//            1,
-//            opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );)
+    TIME_IT("opt_2dhisto",
+    		numTimingRuns,
+            opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );)
 
     /* Include your teardown code below (temporary variables, function calls, etc.) */
 

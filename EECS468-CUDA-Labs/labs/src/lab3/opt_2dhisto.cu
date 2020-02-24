@@ -17,6 +17,8 @@ static inline __device__ void atomicAdd(uint8_t *address, uint8_t val) {
   do {
     assumed = old;
     sum = val + static_cast<uint8_t>((old >> shift) & 0xff);
+    // do not rollover
+    if (sum > UINT8_MAX) return;
     old = (old & ~(0x000000ff << shift)) | (sum << shift);
     old = atomicCAS(address_as_ui, assumed, old);
   } while (assumed != old);
@@ -24,37 +26,26 @@ static inline __device__ void atomicAdd(uint8_t *address, uint8_t val) {
 
 __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH])
 {
-    //printf("Hello I am Kernel %u\n", (unsigned)input[1001 * *inputWidth + 200]);
-//    printf("Bins[0]: %i\n", bins[0]);
-//    atomicAdd(&(bins[0]), 1);
-//    printf("Bins[0]: %i", bins[0]);//
-
     // get indexes
     int tid = blockIdx.x*blockDim.x + threadIdx.x;
-//    printf("blockIdx: %i, blockDim: %i, threadIdx: %i\n", blockIdx.x, blockDim.x, threadIdx.x);
     int size = *inputHeight * *inputWidth;
-//    printf("\nsize: %i", size);
-    //printf("\n(blockDim.x * gridDim.x): %i", (blockDim.x * gridDim.x));
-//    int sectionSize = (size - 1) / (128) + 1;
     int sectionSize = 32;
-    //printf("\nsection size: %i", sectionSize);
-    //sectionSize = 31872;//
     int start = tid*sectionSize;
+
+    uint8_t sub_bins[32] = {};
 
     for(int i = 0; i < sectionSize; i++){
     	if((start + i) < size){
     		int idx = input[start + i];
-    		//uint8_t val = bins[idx];
-
 
     		// ensure < 256
     		if(bins[idx] < 255){
     			atomicAdd(&bins[idx], 1);
     		}
-    		//atomicAdd(&bins[idx], 1);
-
     	}
     }
+
+
 
 }
 
@@ -130,6 +121,8 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint8_t bins[H
     float numThreads = 128.0;
     float numBlocks = 3984.0;
 
+    cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH);
+
     // TODO: make numBlocks dynamic
     // (width * height) / 512 = 318
     //int numBlocks = ceil((float)(*width * *height) / numThreads);
@@ -137,13 +130,12 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint8_t bins[H
     //dim3 DimBlock();
 
 //    unsigned int BIN_COUNT= HISTO_HEIGHT*HISTO_WIDTH;
-    printf("\n\n--- starting kernel ---\n\n");
     opt_2dhisto_kernel<<<numBlocks,numThreads>>>(input, height, width, bins);
 
     cudaThreadSynchronize();
     cudaError_t error;
     error = cudaGetLastError();
-    printf("error: %s\n", cudaGetErrorString(error));
+//    printf("error: %s\n", cudaGetErrorString(error));
 
 }
 
