@@ -29,10 +29,8 @@ __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t 
     // get indexes
     int tid = blockIdx.x*blockDim.x + threadIdx.x;
     int size = *inputHeight * *inputWidth;
-    int sectionSize = 32;
+    int sectionSize = (size-1) / (blockDim.x * gridDim.x) + 1;
     int start = tid*sectionSize;
-
-    uint8_t sub_bins[32] = {};
 
     for(int i = 0; i < sectionSize; i++){
     	if((start + i) < size){
@@ -118,23 +116,19 @@ void freeMemory(uint32_t *input, size_t *height, size_t *width, uint8_t bins[HIS
 void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH] )
 {
     //dim3 DimGrid(31872, 1);
-    float numThreads = 128.0;
-    float numBlocks = 3984.0;
+    float numThreads = 512.0;
+    float inputSize = INPUT_HEIGHT * INPUT_WIDTH;
+    float numBlocks = ceilf(inputSize / numThreads);
 
+    // set the bins count to 0
     cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH);
-
-    // TODO: make numBlocks dynamic
-    // (width * height) / 512 = 318
-    //int numBlocks = ceil((float)(*width * *height) / numThreads);
-    //printf("num blocks: %i", numBlocks);//
-    //dim3 DimBlock();
 
 //    unsigned int BIN_COUNT= HISTO_HEIGHT*HISTO_WIDTH;
     opt_2dhisto_kernel<<<numBlocks,numThreads>>>(input, height, width, bins);
 
     cudaThreadSynchronize();
-    cudaError_t error;
-    error = cudaGetLastError();
+//    cudaError_t error;
+//    error = cudaGetLastError();
 //    printf("error: %s\n", cudaGetErrorString(error));
 
 }
