@@ -89,10 +89,11 @@ int main(int argc, char* argv[])
     uint32_t **input = generate_histogram_bins();
     printf("hello");
 
-
-//    TIME_IT("ref_2dhisto",
-//            1000,
-//            ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
+    // TODO: reset 1 => 1000
+    //ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);
+    TIME_IT("ref_2dhisto",
+            1,
+            ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
 
     /* Include your setup code below (temp variables, function calls, etc.) */
 
@@ -125,18 +126,29 @@ int main(int argc, char* argv[])
 
     /* This is the call you will use to time your parallel implementation */
 //    TIME_IT("opt_2dhisto",
-//            1000,
+//            1,
 //            opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );)
 
     /* Include your teardown code below (temporary variables, function calls, etc.) */
 
-    freeMemory(input_d, inputHeight_d, inputWidth_d, bins_d );
+    // copy data from host to device
+    copyBinsFromDevice(kernel_bins, bins_d);
+    printf("kernel_bins[0]: %i", kernel_bins[0]);
+
+    // compare
+    int numWrong = 0;
+    for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
+    	if(gold_bins[i] != kernel_bins[i]){
+    		printf("\nidx: %i: %u %u, ", i, gold_bins[i], kernel_bins[i]);
+//    		numWrong++;
+    	}
+    }
+//    printf("num Wrong: %i", numWrong);
 
     /* End of teardown code */
 
     int passed=1;
     for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
-        //printf("gold_bins[i] = %i, kernel_bins[i] = %i", gold_bins[i], kernel_bins[i]);
         if (gold_bins[i] != kernel_bins[i]){
             passed = 0;
             break;
@@ -144,6 +156,8 @@ int main(int argc, char* argv[])
     }
     (passed) ? printf("\n    Test PASSED\n") : printf("\n    Test FAILED\n");
 
+
+    freeMemory(input_d, inputHeight_d, inputWidth_d, bins_d );
     free(gold_bins);
     free(kernel_bins);
 }

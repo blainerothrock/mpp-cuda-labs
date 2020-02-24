@@ -22,6 +22,10 @@ Strategy 1: Block partitioning: Divide input into sections. Each thread processe
 
 Drawback: “large number of simultaneously active threads in an SM typically cause too much interference in the caches that one cannot expect a data in a cache line to remain available for all the sequential accesses by a thread”
 
+section size: 31872
+error: unspecified launch failure
+Copy D to H error: unspecified launch failure
+
 Strategy 2 (several x faster): Interleaved partitioning: to achieve memory coalescing. All memory elements fetched from DRAM at one time (one coalesced mem access). Each thread will jump blockDim.x * gridDim.x (# of threads) to process elements.
 
 “each thread will process elements that are separated by the elements processed by all threads during one iteration”
