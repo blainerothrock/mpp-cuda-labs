@@ -27,7 +27,7 @@ Approach 1:
         slow because we needed to check for rollover in the atomicAdd function because it used CAS (divergent).
 
 Approach 2:
-    a) Create a bins array in shared memory of uint32_t type. For given tid, perform atomicAdd on shared bins. Take
+    a) Privatization: Create a bins array in shared memory of uint32_t type. For given tid, perform atomicAdd on shared bins. Take
         shared bins result and atomicAdd those values into original bins array.
     b) Initially we tried to copy bins => device, then convert to uint32_t, then accumulate, then convert back to
         uint8_t, then copy back to device. The approach in described in (a) turned out to be simpler.
@@ -51,10 +51,14 @@ Approach 3:
                 Clock Time        (for 1000 iterations) = 3.71
 
 Approach 4:
-    a)
-    b)
-    c)
-    d)
+    a) Add interleaved partitioning to our existing privatized solution.
+    b) Fairly straightforward, change a couple lines.
+    c) <1 hour
+    d) 20% slowdown:
+        Timing 'opt_2dhisto' started
+                GetTimeOfDay Time (for 1000 iterations) = 4.505
+                Clock Time        (for 1000 iterations) = 4.51
+
 
 BOOK NOTES:
 ------------------

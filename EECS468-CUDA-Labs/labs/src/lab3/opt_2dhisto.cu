@@ -7,6 +7,38 @@
 #include "ref_2dhisto.h"
 #include "opt_2dhisto.h"
 
+// APPROACH 4
+__global__ void opt_2dhisto_kernel_approach4(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint32_t bins[HISTO_HEIGHT*HISTO_WIDTH])
+{
+    const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    const int numThreads = blockDim.x * gridDim.x;
+    const int binSize = HISTO_HEIGHT*HISTO_WIDTH;
+    const int inputSize = INPUT_HEIGHT*INPUT_WIDTH;
+
+    const int sectionSize = inputSize / numThreads;
+    const int start = tid*sectionSize;
+
+    __shared__ uint32_t sBins[binSize];
+
+    for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x )
+        sBins[pos] = 0;
+
+    __syncthreads();
+
+    // Change to interleaved partitioning (4.5 seconds roughly)
+    for ( int i = tid; i < inputSize; i += numThreads) {
+        uint32_t binIdx = input[i];
+        atomicAdd(&sBins[binIdx], 1);
+    }
+
+    __syncthreads();
+
+    for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x ) {
+        atomicAdd(&bins[pos], sBins[pos]);
+    }
+}
+
+// APPROACH 3
 __global__ void opt_2dhisto_kernel_approach3(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint32_t bins[HISTO_HEIGHT*HISTO_WIDTH])
 {
 	const int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -38,6 +70,7 @@ __global__ void opt_2dhisto_kernel_approach3(uint32_t *input, size_t *inputHeigh
 	}
 }
 
+// APPROACH 2
 __global__ void opt_2dhisto_kernel_approach2(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint32_t bins[HISTO_HEIGHT*HISTO_WIDTH])
 {
     const int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -151,7 +184,8 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint32_t bins[
     cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH*sizeof(bins[0]));
 
     //opt_2dhisto_kernel_approach2<<<numBlocks, numThreads>>>(input, height, width, bins);
-    opt_2dhisto_kernel_approach3<<<numBlocksApproach3,numThreads>>>(input, height, width, bins);
+    //opt_2dhisto_kernel_approach3<<<numBlocksApproach3,numThreads>>>(input, height, width, bins);
+    opt_2dhisto_kernel_approach4<<<numBlocksApproach3,numThreads>>>(input, height, width, bins);
 
     cudaThreadSynchronize();
 //    cudaError_t error;

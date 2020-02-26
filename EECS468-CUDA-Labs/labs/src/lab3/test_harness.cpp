@@ -152,12 +152,15 @@ int main(int argc, char* argv[])
     /* End of teardown code */
 
     int passed=1;
+    int numWrong = 0;
     for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
         if (gold_bins[i] != kernel_bins[i]){
             passed = 0;
             printf("\ngold_bins[i]: %u, kernel_bins[i]: %u", gold_bins[i], kernel_bins[i]);
+            numWrong++;
         }
     }
+    printf("\nnum Wrong: %i", numWrong);
     (passed) ? printf("\n    Test PASSED\n") : printf("\n    Test FAILED\n");
 
     freeMemory(input_d, inputHeight_d, inputWidth_d, bins_d );
