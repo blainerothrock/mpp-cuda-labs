@@ -15,8 +15,8 @@ __global__ void opt_2dhisto_kernel_approach4(uint32_t *input, size_t *inputHeigh
     const int binSize = HISTO_HEIGHT*HISTO_WIDTH;
     const int inputSize = INPUT_HEIGHT*INPUT_WIDTH;
 
-    const int sectionSize = inputSize / numThreads;
-    const int start = tid*sectionSize;
+//    const int sectionSize = inputSize / numThreads;
+//    const int start = tid*sectionSize;
 
     __shared__ uint32_t sBins[binSize];
 
@@ -196,9 +196,9 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint32_t bins[
     //opt_2dhisto_kernel_approach5<<<numBlocksApproach5, numThreads, sMemSize>>>(input, height, width, bins);
 
     cudaThreadSynchronize();
-    cudaError_t error;
-    error = cudaGetLastError();
-    printf("error: %s\n", cudaGetErrorString(error));
+//    cudaError_t error;
+//    error = cudaGetLastError();
+//    printf("error: %s\n", cudaGetErrorString(error));
 }
 
 
