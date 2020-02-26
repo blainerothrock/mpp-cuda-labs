@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
     //printf("HELLLOOOOOO");
 
     uint32_t *input_d = allocCopyInput(input, INPUT_WIDTH, INPUT_HEIGHT);
-    uint8_t *bins_d = allocCopyBin(kernel_bins);
+    uint32_t *bins_d = allocCopyBin();
     size_t *inputWidth_d = allocCopyDim(INPUT_WIDTH);
     size_t *inputHeight_d = allocCopyDim(INPUT_HEIGHT);
 
@@ -124,6 +124,7 @@ int main(int argc, char* argv[])
 //    opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );
 
     /* End of setup code */
+    printf("goldBins[267]: %u\n", gold_bins[267]);
 
     /* This is the call you will use to time your parallel implementation */
     TIME_IT("opt_2dhisto",
@@ -137,14 +138,16 @@ int main(int argc, char* argv[])
     printf("kernel_bins[0]: %i", kernel_bins[0]);
 
     // compare
-    int numWrong = 0;
-    for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
-    	if(gold_bins[i] != kernel_bins[i]){
-    		printf("\nidx: %i: %u %u, ", i, gold_bins[i], kernel_bins[i]);
-//    		numWrong++;
-    	}
-    }
+//    int numWrong = 0;
+//    for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
+//    	if(gold_bins[i] != kernel_bins[i]){
+//    		printf("\nidx: %i: %u %u, ", i, gold_bins[i], kernel_bins[i]);
+////    		numWrong++;
+//    	}
+//    }
 //    printf("num Wrong: %i", numWrong);
+
+
 
     /* End of teardown code */
 
