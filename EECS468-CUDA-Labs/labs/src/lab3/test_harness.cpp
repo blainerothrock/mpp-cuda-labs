@@ -87,13 +87,10 @@ int main(int argc, char* argv[])
     // A 2D array of histogram bin-ids.  One can think of each of these bins-ids as
     // being associated with a pixel in a 2D image.
     uint32_t **input = generate_histogram_bins();
-    printf("hello");
 
-    // TODO: reset 1 => 1000
-    //ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);
     int numTimingRuns = 1000;
     TIME_IT("ref_2dhisto",
-    		numTimingRuns,
+            numTimingRuns,
             ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
 
     /* Include your setup code below (temp variables, function calls, etc.) */
@@ -117,14 +114,7 @@ int main(int argc, char* argv[])
     size_t *inputWidth_d = allocCopyDim(INPUT_WIDTH);
     size_t *inputHeight_d = allocCopyDim(INPUT_HEIGHT);
 
-    printf("input 1001, 200 %"PRIu32"\n", input[1001][200]);
-
-//
-    printf("calling kernel caller\n");
-//    opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );
-
     /* End of setup code */
-    printf("goldBins[267]: %u\n", gold_bins[267]);
 
     /* This is the call you will use to time your parallel implementation */
     TIME_IT("opt_2dhisto",
@@ -135,19 +125,6 @@ int main(int argc, char* argv[])
 
     // copy data from host to device
     copyBinsFromDevice(kernel_bins, bins_d);
-    printf("kernel_bins[0]: %i", kernel_bins[0]);
-
-    // compare
-//    int numWrong = 0;
-//    for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
-//    	if(gold_bins[i] != kernel_bins[i]){
-//    		printf("\nidx: %i: %u %u, ", i, gold_bins[i], kernel_bins[i]);
-////    		numWrong++;
-//    	}
-//    }
-//    printf("num Wrong: %i", numWrong);
-
-
 
     /* End of teardown code */
 
@@ -160,7 +137,7 @@ int main(int argc, char* argv[])
             numWrong++;
         }
     }
-    printf("\nnum Wrong: %i", numWrong);
+    printf("\num Wrong: %i", numWrong);
     (passed) ? printf("\n    Test PASSED\n") : printf("\n    Test FAILED\n");
 
     freeMemory(input_d, inputHeight_d, inputWidth_d, bins_d );

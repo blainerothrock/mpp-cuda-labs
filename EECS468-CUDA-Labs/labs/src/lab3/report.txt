@@ -18,6 +18,8 @@ Please be brief in the descriptions above; there is no need for lengthy descript
 bulleted lists are enough if they convey everything you want to say.
 ——————————————
 
+ADD: check < 255 outside of kernel probably makes code faster
+
 Approach 1:
     a) Block partitioning approach. Use atomic operations to avoid bank conflicts.
         Create own atomicAdd to handle uint32_t types.
@@ -54,10 +56,43 @@ Approach 4:
     a) Add interleaved partitioning to our existing privatized solution.
     b) Fairly straightforward, change a couple lines.
     c) <1 hour
-    d) 20% slowdown:
+    d) Results
+    With calcsPerThread = 4:
         Timing 'opt_2dhisto' started
                 GetTimeOfDay Time (for 1000 iterations) = 4.505
                 Clock Time        (for 1000 iterations) = 4.51
+    With calcsPerThread = 16 => less blocks:
+         Timing 'opt_2dhisto' started
+                 GetTimeOfDay Time (for 1000 iterations) = 3.59
+                 Clock Time        (for 1000 iterations) = 3.58
+    With calcsPerThread = 64 => even less blocks
+        Timing 'opt_2dhisto' started
+                GetTimeOfDay Time (for 1000 iterations) = 3.245
+                Clock Time        (for 1000 iterations) = 3.25
+    With calcsPerThread = 128 => even less blocks
+        Timing 'opt_2dhisto' started
+                GetTimeOfDay Time (for 1000 iterations) = 3.165
+                Clock Time        (for 1000 iterations) = 3.13
+    With calcsPerThread = 256 => even even less blocks
+        Timing 'opt_2dhisto' started
+                GetTimeOfDay Time (for 1000 iterations) = 3.09
+                Clock Time        (for 1000 iterations) = 3.09
+    With calcsPerThread = 512 => even even even less blocks
+        Timing 'opt_2dhisto' started
+                GetTimeOfDay Time (for 1000 iterations) = 3.055 => .003055ms/run
+                Clock Time        (for 1000 iterations) = 3.05
+    With calcsPerThread = 1024 (slowed down a bit)
+        Timing 'opt_2dhisto' started
+                    GetTimeOfDay Time (for 1000 iterations) = 3.1
+                    Clock Time        (for 1000 iterations) = 3.1
+
+
+Approach 5:
+    a) Move input into shared memory? Talked to Emirhan. Unfortunately, in order to fit into shared mem, we had to
+        decrease calcsPerThread to 8 (36.8KB) and thus it might not be worth taking this approach.
+    b) Abandoned this approach.
+    c) N/A
+    d) N/A
 
 
 BOOK NOTES:

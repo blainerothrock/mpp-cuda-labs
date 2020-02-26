@@ -25,7 +25,7 @@ __global__ void opt_2dhisto_kernel_approach4(uint32_t *input, size_t *inputHeigh
 
     __syncthreads();
 
-    // Change to interleaved partitioning (4.5 seconds roughly)
+    // Change to interleaved partitioning (~ 3 seconds)
     for ( int i = tid; i < inputSize; i += numThreads) {
         uint32_t binIdx = input[i];
         atomicAdd(&sBins[binIdx], 1);
@@ -175,10 +175,16 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint32_t bins[
     float numBlocks = ceilf(inputSize / numThreads);
 
     // APPROACH 3
-    float calcsPerThread = 4.0;
+    float calcsPerThread = 512.0;
     float numBlocksApproach3 = ceilf((inputSize / numThreads)) / calcsPerThread;
 
-//    printf("num of blocks: %f | num of threads: %f\n", numBlocksApproach3, numThreads);
+    // APPROACH 5
+    float calcsPerThreadApproach5 = 8.0;
+    float numBlocksApproach5 = ceilf((inputSize / numThreads)) / calcsPerThreadApproach5;
+    float sMemSize = ((HISTO_HEIGHT*HISTO_WIDTH) + (inputSize / numBlocksApproach5)) * sizeof(uint32_t);
+    //printf("\nsMemSize: %f", sMemSize); // 36.8KB fits into 48KB shared mem
+
+    //printf("num of blocks: %f | num of threads: %f\n", numBlocksApproach3, numThreads);
 
     // set the bins count to 0
     cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH*sizeof(bins[0]));
@@ -186,15 +192,13 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint32_t bins[
     //opt_2dhisto_kernel_approach2<<<numBlocks, numThreads>>>(input, height, width, bins);
     //opt_2dhisto_kernel_approach3<<<numBlocksApproach3,numThreads>>>(input, height, width, bins);
     opt_2dhisto_kernel_approach4<<<numBlocksApproach3,numThreads>>>(input, height, width, bins);
+    // approach 5 never implemented
+    //opt_2dhisto_kernel_approach5<<<numBlocksApproach5, numThreads, sMemSize>>>(input, height, width, bins);
 
     cudaThreadSynchronize();
-//    cudaError_t error;
-//    error = cudaGetLastError();
-//    printf("error: %s\n", cudaGetErrorString(error));
-
+    cudaError_t error;
+    error = cudaGetLastError();
+    printf("error: %s\n", cudaGetErrorString(error));
 }
-
-/* Include below the implementation of any other functions you need */ //
-
 
 
