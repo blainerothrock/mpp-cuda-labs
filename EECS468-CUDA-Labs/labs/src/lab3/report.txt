@@ -1,7 +1,7 @@
 Authors: Grant Gasser (GGL8333), Nayan Mehta (NMH3011), Blaine Rothrock (BRY4668)
 
 ——————————————
-Instructions (DELETE LATER), need to adjust to fit this format
+Instructions
 
 In addition to the code, add a report file in your lab3 source directory. Your report
 should contain the names and netIDs of all team members, and a journal of all
@@ -19,15 +19,16 @@ bulleted lists are enough if they convey everything you want to say.
 ——————————————
 
 Approach 1:
-    a) Block partioning approach. Use atomic operations to avoid bank conflicts.
+    a) Block partitioning approach. Use atomic operations to avoid bank conflicts.
         Create own atomicAdd to handle uint32_t types.
-    b) The approach did not quite work. All but roughly 10-15 values in bins were correct. We believe we had rollover.
+    b) The approach did not quite work. All but roughly 10-15 values in bins were correct.
     c) ~ 8-10 hours. We abandoned after going to OH and decided to convert bins to uint32_t before performing atomicAdd.
-    d) No gain.
+    d) We were able to pass but the results were slow (performed similarly to the reference code). We believe it was
+        slow because we needed to check for rollover in the atomicAdd function because it used CAS (divergent).
 
 Approach 2:
     a) Create a bins array in shared memory of uint32_t type. For given tid, perform atomicAdd on shared bins. Take
-        shared bins result and atomicAdd those values into origin bins array.
+        shared bins result and atomicAdd those values into original bins array.
     b) Initially we tried to copy bins => device, then convert to uint32_t, then accumulate, then convert back to
         uint8_t, then copy back to device. The approach in described in (a) turned out to be simpler.
     c) ~5 hours
@@ -40,8 +41,23 @@ Approach 2:
                 Clock Time        (for 1000 iterations) = 7.16
 
 Approach 3:
-    a) Use 4x less threads and have each thread do 4 calculations.
+    a) Similar to Approach 2 but using block partitioning - similar to Strategy 1 in the book. Use sectionSize. Each
+        thread processes a section and updates the 32int_t bins in shared memory.
+    b) Fairly straightforward expansion of our previous method.
+    c) ~2-3 hours
+    d) 2x improvement:
+        Timing 'opt_2dhisto' started
+                GetTimeOfDay Time (for 1000 iterations) = 3.707
+                Clock Time        (for 1000 iterations) = 3.71
 
+Approach 4:
+    a)
+    b)
+    c)
+    d)
+
+BOOK NOTES:
+------------------
 Strategy 1: Block partitioning: Divide input into sections. Each thread processes a section. Use atomic add to
 avoid race conditions.
 

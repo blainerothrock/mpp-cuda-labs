@@ -160,7 +160,6 @@ int main(int argc, char* argv[])
     }
     (passed) ? printf("\n    Test PASSED\n") : printf("\n    Test FAILED\n");
 
-
     freeMemory(input_d, inputHeight_d, inputWidth_d, bins_d );
     free(gold_bins);
     free(kernel_bins);
