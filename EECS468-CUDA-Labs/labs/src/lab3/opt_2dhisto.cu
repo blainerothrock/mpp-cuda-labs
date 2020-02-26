@@ -9,7 +9,6 @@
 
 __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint32_t bins[HISTO_HEIGHT*HISTO_WIDTH])
 {
-
 	const int tid = blockIdx.x * blockDim.x + threadIdx.x;
 	const int numThreads = blockIdx.x * blockDim.x;
 	const int binSize = HISTO_HEIGHT*HISTO_WIDTH;
@@ -29,8 +28,6 @@ __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t 
 	for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x ) {
 		atomicAdd(&bins[pos], sBins[pos]);
 	}
-
-
 }
 
 uint32_t * allocCopyInput(uint32_t **input, size_t width, size_t height)
@@ -50,10 +47,10 @@ uint32_t * allocCopyInput(uint32_t **input, size_t width, size_t height)
 //    uint32_t *input_device;
     int sizeInput = width*height*sizeof(uint32_t);
     cudaError_t allocError = cudaMalloc((void **)&input_d, sizeInput);
-    printf("input alloc error: %s\n", cudaGetErrorString(allocError));
+    //printf("input alloc error: %s\n", cudaGetErrorString(allocError));
     cudaError_t cpyError = cudaMemcpy(input_d, flattenedRepresentation[0], sizeInput, cudaMemcpyHostToDevice);
     //delete [] flattenedRepresentation;
-    printf("input cpy error: %s\n", cudaGetErrorString(cpyError));
+    //printf("input cpy error: %s\n", cudaGetErrorString(cpyError));
     return input_d;
 }
 
@@ -62,11 +59,11 @@ uint32_t * allocCopyBin()
     uint32_t *bins_d;
     int sizeBins = HISTO_HEIGHT*HISTO_WIDTH*sizeof(uint32_t);
     cudaError_t allocError = cudaMalloc((void **)&bins_d, sizeBins);
-    printf("bin alloc error: %s\n", cudaGetErrorString(allocError));
+    //printf("bin alloc error: %s\n", cudaGetErrorString(allocError));
 //    cudaError_t cpyError = cudaMemcpy(bins_d, bins, sizeBins, cudaMemcpyHostToDevice);
 //    printf("bin cpy error: %s\n", cudaGetErrorString(cpyError));
     cudaError_t memSetError = cudaMemset(bins_d, 0, sizeBins);
-    printf("bin mem set error: %s\n", cudaGetErrorString(memSetError));
+    //printf("bin mem set error: %s\n", cudaGetErrorString(memSetError));
     return bins_d;
 }
 
@@ -74,9 +71,9 @@ size_t * allocCopyDim(size_t inputDim)
 {
     size_t *inputDim_d;
     cudaError_t allocError = cudaMalloc((void **) &inputDim_d, sizeof(size_t));
-    printf("dim alloc error: %s\n", cudaGetErrorString(allocError));
+    //printf("dim alloc error: %s\n", cudaGetErrorString(allocError));
     cudaError_t cpyError = cudaMemcpy(inputDim_d, &inputDim, sizeof(size_t), cudaMemcpyHostToDevice);
-    printf("dim cpy error: %s\n", cudaGetErrorString(cpyError));
+    //printf("dim cpy error: %s\n", cudaGetErrorString(cpyError));
     return inputDim_d;
 }
 
@@ -85,7 +82,7 @@ void copyBinsFromDevice(uint8_t h_bins[HISTO_HEIGHT*HISTO_WIDTH], uint32_t d_bin
 
 	int sizeTmpBins = HISTO_HEIGHT*HISTO_WIDTH*sizeof(uint32_t);
 	cudaError_t cpyError = cudaMemcpy(tmpBins, d_bins, sizeTmpBins, cudaMemcpyDeviceToHost);
-    printf("Copy D to H error: %s\n", cudaGetErrorString(cpyError));
+    //printf("Copy D to H error: %s\n", cudaGetErrorString(cpyError));
 
     for ( int i = 0; i < HISTO_HEIGHT*HISTO_WIDTH; i++ ) {
     	if (tmpBins[i] > 255) tmpBins[i] = 255;
@@ -94,7 +91,7 @@ void copyBinsFromDevice(uint8_t h_bins[HISTO_HEIGHT*HISTO_WIDTH], uint32_t d_bin
 }
 
 void freeMemory(uint32_t *input, size_t *height, size_t *width, uint32_t bins[HISTO_HEIGHT*HISTO_WIDTH] ){
-	printf("Freeing memory\n");
+	//printf("Freeing memory\n");
 	cudaFree(input);
 	input = NULL;
 	cudaFree(height);
@@ -116,13 +113,20 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint32_t bins[
     // set the bins count to 0
     cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH);
 
+//    printf("\nprinting first 5 values of bins:");
+//    printf(bins[0]);
+//    for(int i = 0; i < 5; i++){
+//        printf("\t %i", bins[i]);
+//        printf("\n");
+//    }
+
 //    unsigned int BIN_COUNT= HISTO_HEIGHT*HISTO_WIDTH;
     opt_2dhisto_kernel<<<numBlocks,numThreads>>>(input, height, width, bins);
 
     cudaThreadSynchronize();
     cudaError_t error;
     error = cudaGetLastError();
-    printf("error: %s\n", cudaGetErrorString(error));
+    //printf("error: %s\n", cudaGetErrorString(error));
 
 }
 

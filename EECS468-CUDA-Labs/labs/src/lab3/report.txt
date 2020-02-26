@@ -18,6 +18,45 @@ Please be brief in the descriptions above; there is no need for lengthy descript
 bulleted lists are enough if they convey everything you want to say.
 ——————————————
 
+Approach 1:
+    a) Use atomic operations to avoid bank conflicts. Create own atomicAdd to handle uint32_t types.
+    b) The approach did not quite work. All but roughly 10-15 values in bins were correct. We believe we had rollover.
+    c) ~ 8-10 hours. We abandoned after going to OH and decided to convert bins to uint32_t before performing atomicAdd.
+    d) No gain.
+
+Approach 2:
+    a) Create a bins array in shared memory of uint32_t type. For given tid, perform atomicAdd on shared bins. Take
+        shared bins result and atomicAdd those values into origin bins array.
+    b) TODO: still failing with > 1 tests. Need to reset bins.
+    c) ~5
+    d) Speed:
+        Timing 'ref_2dhisto' started
+                GetTimeOfDay Time (for 1000 iterations) = 11.081
+                Clock Time        (for 1000 iterations) = 11.07
+        Timing 'opt_2dhisto' started
+                GetTimeOfDay Time (for 1000 iterations) = 7.104
+                Clock Time        (for 1000 iterations) = 7.09
+
+TODO: problem is bins are not being reset. This is when numTimingRuns = 10:
+gold_bins[i]: 19, kernel_bins[i]: 190
+gold_bins[i]: 68, kernel_bins[i]: 255
+gold_bins[i]: 46, kernel_bins[i]: 255
+gold_bins[i]: 77, kernel_bins[i]: 255
+gold_bins[i]: 57, kernel_bins[i]: 255
+gold_bins[i]: 93, kernel_bins[i]: 255
+gold_bins[i]: 64, kernel_bins[i]: 255
+gold_bins[i]: 67, kernel_bins[i]: 255
+gold_bins[i]: 23, kernel_bins[i]: 230
+gold_bins[i]: 34, kernel_bins[i]: 255
+gold_bins[i]: 39, kernel_bins[i]: 255
+gold_bins[i]: 39, kernel_bins[i]: 255
+gold_bins[i]: 28, kernel_bins[i]: 255
+gold_bins[i]: 10, kernel_bins[i]: 100
+gold_bins[i]: 11, kernel_bins[i]: 110
+gold_bins[i]: 6, kernel_bins[i]: 60
+
+Note: either 255 or 10x larger. Need to reset bins.
+
 Strategy 1: Block partitioning: Divide input into sections. Each thread processes a section. Use atomic add to avoid race conditions.
 
 Drawback: “large number of simultaneously active threads in an SM typically cause too much interference in the caches that one cannot expect a data in a cache line to remain available for all the sequential accesses by a thread”

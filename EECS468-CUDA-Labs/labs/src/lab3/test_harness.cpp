@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
     // TODO: reset 1 => 1000
     //ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);
-    int numTimingRuns = 1;
+    int numTimingRuns = 10;
     TIME_IT("ref_2dhisto",
     		numTimingRuns,
             ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
     for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
         if (gold_bins[i] != kernel_bins[i]){
             passed = 0;
-            break;
+            printf("\ngold_bins[i]: %u, kernel_bins[i]: %u", gold_bins[i], kernel_bins[i]);
         }
     }
     (passed) ? printf("\n    Test PASSED\n") : printf("\n    Test FAILED\n");
