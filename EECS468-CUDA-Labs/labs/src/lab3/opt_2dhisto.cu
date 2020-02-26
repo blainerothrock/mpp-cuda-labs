@@ -11,8 +11,12 @@ __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t 
 {
 
 	const int tid = blockIdx.x * blockDim.x + threadIdx.x;
-	const int numThreads = blockIdx.x * blockDim.x;
+	const int numThreads = blockDim.x * gridDim.x;
 	const int binSize = HISTO_HEIGHT*HISTO_WIDTH;
+	const int inputSize = INPUT_HEIGHT*INPUT_WIDTH;
+
+    const int sectionSize = inputSize / numThreads;
+	const int start = tid*sectionSize;
 
 	__shared__ uint32_t sBins[binSize];
 
@@ -21,8 +25,12 @@ __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t 
 
 	__syncthreads();
 
-	int binIdx = input[tid];
-	atomicAdd(&sBins[binIdx], 1);
+    for ( int i = 0; i < sectionSize; i++ ) {
+        if ((start + i) < inputSize) {
+            uint32_t binIdx = input[start+i];
+            atomicAdd(&sBins[binIdx], 1);
+        }
+    }
 
 	__syncthreads();
 
@@ -110,19 +118,22 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint32_t bins[
 {
     //dim3 DimGrid(31872, 1);
     float numThreads = 1024.0;
-    float inputSize = INPUT_HEIGHT * INPUT_WIDTH;
-    float numBlocks = ceilf(inputSize / numThreads);
+    float sectionSize = 4.0;
+    float inputSize = (INPUT_HEIGHT * INPUT_WIDTH);
+    float numBlocks = ceilf((inputSize / numThreads)) / sectionSize;
+
+//    printf("num of blocks: %f | num of threads: %f\n", numBlocks, numThreads);
 
     // set the bins count to 0
-    cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH);
+    cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH*sizeof(bins[0]));
 
 //    unsigned int BIN_COUNT= HISTO_HEIGHT*HISTO_WIDTH;
     opt_2dhisto_kernel<<<numBlocks,numThreads>>>(input, height, width, bins);
 
     cudaThreadSynchronize();
-    cudaError_t error;
-    error = cudaGetLastError();
-    printf("error: %s\n", cudaGetErrorString(error));
+//    cudaError_t error;
+//    error = cudaGetLastError();
+//    printf("error: %s\n", cudaGetErrorString(error));
 
 }
 
