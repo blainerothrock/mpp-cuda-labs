@@ -86,13 +86,18 @@ Approach 4:
                     GetTimeOfDay Time (for 1000 iterations) = 3.1
                     Clock Time        (for 1000 iterations) = 3.1
 
-
 Approach 5:
     a) Move input into shared memory? Talked to Emirhan. Unfortunately, in order to fit into shared mem, we had to
         decrease calcsPerThread to 8 (36.8KB) and thus it might not be worth taking this approach.
     b) Abandoned this approach.
     c) N/A
     d) N/A
+
+Approach 6:
+    a)
+    b)
+    c)
+    d)
 
 
 BOOK NOTES:
