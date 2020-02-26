@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
     // TODO: reset 1 => 1000
     //ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);
-    int numTimingRuns = 10;
+    int numTimingRuns = 1000;
     TIME_IT("ref_2dhisto",
     		numTimingRuns,
             ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)

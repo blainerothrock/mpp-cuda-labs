@@ -7,7 +7,8 @@
 #include "ref_2dhisto.h"
 #include "opt_2dhisto.h"
 
-__global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint32_t bins[HISTO_HEIGHT*HISTO_WIDTH])
+// NOTE: APPROACH 2 KERNEL
+__global__ void opt_2dhisto_kernel_approach2(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint32_t bins[HISTO_HEIGHT*HISTO_WIDTH])
 {
 	const int tid = blockIdx.x * blockDim.x + threadIdx.x;
 	const int numThreads = blockIdx.x * blockDim.x;
@@ -28,6 +29,30 @@ __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t 
 	for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x ) {
 		atomicAdd(&bins[pos], sBins[pos]);
 	}
+}
+
+// NOTE: APPROACH 3 KERNEL
+__global__ void opt_2dhisto_kernel_approach3(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint32_t bins[HISTO_HEIGHT*HISTO_WIDTH])
+{
+    const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    const int numThreads = blockIdx.x * blockDim.x;
+    const int binSize = HISTO_HEIGHT*HISTO_WIDTH;
+
+    __shared__ uint32_t sBins[binSize];
+
+    for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x )
+        sBins[pos] = 0;
+
+    __syncthreads();
+
+    int binIdx = input[tid];
+    atomicAdd(&sBins[binIdx], 1);
+
+    __syncthreads();
+
+    for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x ) {
+        atomicAdd(&bins[pos], sBins[pos]);
+    }
 }
 
 uint32_t * allocCopyInput(uint32_t **input, size_t width, size_t height)
@@ -111,7 +136,7 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint32_t bins[
     float numBlocks = ceilf(inputSize / numThreads);
 
     // set the bins count to 0
-    cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH);
+    cudaMemset(bins, 0, HISTO_HEIGHT*HISTO_WIDTH*sizeof(bins[0]));
 
 //    printf("\nprinting first 5 values of bins:");
 //    printf(bins[0]);
@@ -120,8 +145,8 @@ void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint32_t bins[
 //        printf("\n");
 //    }
 
-//    unsigned int BIN_COUNT= HISTO_HEIGHT*HISTO_WIDTH;
-    opt_2dhisto_kernel<<<numBlocks,numThreads>>>(input, height, width, bins);
+    //opt_2dhisto_kernel_approach2<<<numBlocks,numThreads>>>(input, height, width, bins);
+    opt_2dhisto_kernel_approach3<<<numBlocks,numThreads>>>(input, height, width, bins);
 
     cudaThreadSynchronize();
     cudaError_t error;
