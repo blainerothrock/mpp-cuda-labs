@@ -7,42 +7,48 @@
 #include "ref_2dhisto.h"
 #include "opt_2dhisto.h"
 
-static inline __device__ void atomicAdd(uint8_t *address, uint8_t val) {
-  unsigned int * address_as_ui = (unsigned int *) (address - ((size_t)address & 0x3));
-  unsigned int old = *address_as_ui;
-  unsigned int shift = (((size_t)address & 0x3) << 3);
-  unsigned int sum;
-  unsigned int assumed;
+__device__ void atomicAdd(uint8_t *address, uint8_t val) {
+	// convert to uint
+	uint32_t * uAddress = (uint32_t *) (address - ((size_t)address & 0x3));
+	uint32_t old = *uAddress;
+	uint32_t shift = (((size_t)address & 0x3) << 3);
+	uint32_t sum;
+	uint32_t assumed;
 
-  do {
-    assumed = old;
-    sum = val + static_cast<uint8_t>((old >> shift) & 0xff);
-    // do not rollover
-    if (sum > UINT8_MAX) return;
-    old = (old & ~(0x000000ff << shift)) | (sum << shift);
-    old = atomicCAS(address_as_ui, assumed, old);
-  } while (assumed != old);
+	do {
+		assumed = old;
+		sum = val + static_cast<uint8_t>((old >> shift) & 0xff);
+		if (sum > UINT8_MAX)
+			sum = UINT8_MAX;
+		old = (old & ~(0x000000ff << shift)) | (sum << shift);
+		old = atomicCAS(uAddress, assumed, old);
+	} while (assumed != old);
 }
+
+//__device__ uint32_t gBins[HISTO_HEIGHT*HISTO_WIDTH];
 
 __global__ void opt_2dhisto_kernel(uint32_t *input, size_t *inputHeight, size_t *inputWidth, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH])
 {
-    // get indexes
-    int tid = blockIdx.x*blockDim.x + threadIdx.x;
-    int size = *inputHeight * *inputWidth;
-    int sectionSize = (size-1) / (blockDim.x * gridDim.x) + 1;
-    int start = tid*sectionSize;
 
-    for(int i = 0; i < sectionSize; i++){
-    	if((start + i) < size){
-    		int idx = input[start + i];
+	const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+	const int numThreads = blockIdx.x * blockDim.x;
+	const int binSize = HISTO_HEIGHT*HISTO_WIDTH;
 
-    		// ensure < 256
-    		if(bins[idx] < 255){
-    			atomicAdd(&bins[idx], 1);
-    		}
-    	}
-    }
+	__shared__ uint8_t sBins[binSize];
 
+	for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x )
+		sBins[pos] = 0;
+
+	__syncthreads();
+
+	int binIdx = input[tid];
+	atomicAdd(&sBins[binIdx], 1);
+
+	__syncthreads();
+
+	for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x ) {
+		atomicAdd(&bins[pos], sBins[pos]);
+	}
 
 
 }
@@ -116,7 +122,7 @@ void freeMemory(uint32_t *input, size_t *height, size_t *width, uint8_t bins[HIS
 void opt_2dhisto( uint32_t *input, size_t *height, size_t *width, uint8_t bins[HISTO_HEIGHT*HISTO_WIDTH] )
 {
     //dim3 DimGrid(31872, 1);
-    float numThreads = 512.0;
+    float numThreads = 1024.0;
     float inputSize = INPUT_HEIGHT * INPUT_WIDTH;
     float numBlocks = ceilf(inputSize / numThreads);
 
