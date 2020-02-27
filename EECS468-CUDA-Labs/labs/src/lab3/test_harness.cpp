@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 
     /* Include your teardown code below (temporary variables, function calls, etc.) */
 
-    // copy data from host to device
+    // copy data from host to device//
     copyBinsFromDevice(kernel_bins, bins_d);
 
     /* End of teardown code */

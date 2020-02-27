@@ -15,23 +15,38 @@ __global__ void opt_2dhisto_kernel_approach4(uint32_t *input, size_t *inputHeigh
     const int binSize = HISTO_HEIGHT*HISTO_WIDTH;
     const int inputSize = INPUT_HEIGHT*INPUT_WIDTH;
 
-//    const int sectionSize = inputSize / numThreads;
-//    const int start = tid*sectionSize;
-
     __shared__ uint32_t sBins[binSize];
 
+    #pragma unroll
     for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x )
         sBins[pos] = 0;
+
+//    int pos = threadIdx.x;
+//    if ( pos+0*blockDim.x < binSize ) sBins[pos] = 0;
+//    if ( pos+1*blockDim.x < binSize ) sBins[pos] = 0;
+//    if ( pos+2*blockDim.x < binSize ) sBins[pos] = 0;
+//    if ( pos+3*blockDim.x < binSize ) sBins[pos] = 0;
 
     __syncthreads();
 
     // Change to interleaved partitioning (~ 3 seconds)
-    for ( int i = tid; i < inputSize; i += numThreads) {
-        uint32_t binIdx = input[i];
-        atomicAdd(&sBins[binIdx], 1);
+
+    for ( int i = tid; i < inputSize - (2*numThreads); i += numThreads*2) {
+        uint32_t binIdx0 = input[i + numThreads*0];
+        atomicAdd(&sBins[binIdx0], 1);
+
+        uint32_t binIdx1 = input[i + numThreads*1];
+        atomicAdd(&sBins[binIdx1], 1);
+
+//        uint32_t binIdx2 = input[i + numThreads*2];
+//        atomicAdd(&sBins[binIdx2], 1);
+//
+//        uint32_t binIdx3 = input[i + numThreads*3];
+//        atomicAdd(&sBins[binIdx3], 1);
     }
 
     __syncthreads();
+
 
     for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x ) {
         atomicAdd(&bins[pos], sBins[pos]);
