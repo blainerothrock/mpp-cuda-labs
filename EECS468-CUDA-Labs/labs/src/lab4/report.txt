@@ -1,0 +1,16 @@
+Authors: Grant Gasser (GGL8333), Nayan Mehta (NMH3011), Blaine Rothrock (BRY4668)
+
+------------------
+Instructions
+
+a) Near the top of "scan_largearray.cu", set #define DEFAULT_NUM_ELEMENTS to 16777216.
+Set  #define  MAX_RAND  to  3. Record  the  performance  results  when run  without  arguments,
+including  the host  CPU  and  GPU  processing  times  and the speedup.
+
+b) Describe  how  you  handled  arrays  not  a  power  of  two  in  size,  and  how  you minimized shared memory
+bank conflicts. Also describe any other performance-enhancing optimizations you added.
+
+c) How  do  the  measured  FLOPS  rate  for  the  CPU  and  GPU  kernels  compare with each other, and with the
+theoretical performance limits of each architecture? For your  GPU implementation,  discuss  what  bottlenecks  your
+code  is  likely  bound by, limiting higher performance.
+------------------
