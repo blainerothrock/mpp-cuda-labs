@@ -15,9 +15,6 @@ __global__ void opt_2dhisto_kernel_approach4(uint32_t *input, size_t *inputHeigh
     const int binSize = HISTO_HEIGHT*HISTO_WIDTH;
     const int inputSize = INPUT_HEIGHT*INPUT_WIDTH;
 
-//    const int sectionSize = inputSize / numThreads;
-//    const int start = tid*sectionSize;
-
     __shared__ uint32_t sBins[binSize];
 
     for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x )
@@ -26,12 +23,23 @@ __global__ void opt_2dhisto_kernel_approach4(uint32_t *input, size_t *inputHeigh
     __syncthreads();
 
     // Change to interleaved partitioning (~ 3 seconds)
-    for ( int i = tid; i < inputSize; i += numThreads) {
-        uint32_t binIdx = input[i];
-        atomicAdd(&sBins[binIdx], 1);
+
+    for ( int i = tid; i < inputSize - (2*numThreads); i += numThreads*2) {
+        uint32_t binIdx0 = input[i + numThreads*0];
+        atomicAdd(&sBins[binIdx0], 1);
+
+        uint32_t binIdx1 = input[i + numThreads*1];
+        atomicAdd(&sBins[binIdx1], 1);
+//
+//        uint32_t binIdx2 = input[i + numThreads*2];
+//        atomicAdd(&sBins[binIdx2], 1);
+//
+//        uint32_t binIdx3 = input[i + numThreads*3];
+//        atomicAdd(&sBins[binIdx3], 1);
     }
 
     __syncthreads();
+
 
     for ( int pos = threadIdx.x; pos < binSize; pos += blockDim.x ) {
         atomicAdd(&bins[pos], sBins[pos]);
@@ -96,24 +104,27 @@ __global__ void opt_2dhisto_kernel_approach2(uint32_t *input, size_t *inputHeigh
 
 uint32_t * allocCopyInput(uint32_t **input, size_t width, size_t height)
 {
-    // solution from http://www.trevorsimonton.com/blog/2016/11/16/transfer-2d-array-memory-to-cuda.html
-    uint32_t** flattenedRepresentation = new uint32_t*[height];
-    flattenedRepresentation[0] = new uint32_t[height * width];
-    for (int i = 1; i < height; ++i) flattenedRepresentation[i] = flattenedRepresentation[i-1] + width;
+    // flatten input
 
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            flattenedRepresentation[i][j] = input[i][j];
+    // allocate and order flatten input
+    uint32_t *flattened[height];
+    *flattened = (uint32_t *)malloc(sizeof(uint32_t) * (height * width));
+
+    for (int i = 1; i < height; i++)
+        flattened[i] = flattened[i-1] + width;
+
+    // copy input into flattened
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            flattened[i][j] = input[i][j];
         }
     }
 
     uint32_t *input_d;
-//    uint32_t *input_device;
     int sizeInput = width*height*sizeof(uint32_t);
     cudaError_t allocError = cudaMalloc((void **)&input_d, sizeInput);
     printf("input alloc error: %s\n", cudaGetErrorString(allocError));
-    cudaError_t cpyError = cudaMemcpy(input_d, flattenedRepresentation[0], sizeInput, cudaMemcpyHostToDevice);
-    //delete [] flattenedRepresentation;
+    cudaError_t cpyError = cudaMemcpy(input_d, *flattened, sizeInput, cudaMemcpyHostToDevice);
     printf("input cpy error: %s\n", cudaGetErrorString(cpyError));
     return input_d;
 }

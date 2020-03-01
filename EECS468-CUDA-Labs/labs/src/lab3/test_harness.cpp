@@ -88,27 +88,11 @@ int main(int argc, char* argv[])
     // being associated with a pixel in a 2D image.
     uint32_t **input = generate_histogram_bins();
 
-    int numTimingRuns = 1000;
     TIME_IT("ref_2dhisto",
-            numTimingRuns,
+            1000,
             ref_2dhisto(input, INPUT_HEIGHT, INPUT_WIDTH, gold_bins);)
 
-    /* Include your setup code below (temp variables, function calls, etc.) */
-
-//    for (int i=0;i<INPUT_HEIGHT; i++){
-//        for (int j=0;j<INPUT_WIDTH;j++){
-//            cout<<input[i][j]<<" ";
-//        }
-//    }
-//    cout<<INPUT_HEIGHT<<" "<<INPUT_WIDTH<<endl;
-
-//    for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
-//        printf("%u ",gold_bins[i]);
-//    } ////////
-
     printf("allocating cuda\n");
-    //printf("HELLLOOOOOO");
-
     uint32_t *input_d = allocCopyInput(input, INPUT_WIDTH, INPUT_HEIGHT);
     uint32_t *bins_d = allocCopyBin();
     size_t *inputWidth_d = allocCopyDim(INPUT_WIDTH);
@@ -118,29 +102,26 @@ int main(int argc, char* argv[])
 
     /* This is the call you will use to time your parallel implementation */
     TIME_IT("opt_2dhisto",
-    		numTimingRuns,
+    		1000,
             opt_2dhisto( input_d, inputHeight_d, inputWidth_d, bins_d );)
 
     /* Include your teardown code below (temporary variables, function calls, etc.) */
 
-    // copy data from host to device
+    // copy data from host to device//
     copyBinsFromDevice(kernel_bins, bins_d);
+    freeMemory(input_d, inputHeight_d, inputWidth_d, bins_d );
 
     /* End of teardown code */
 
     int passed=1;
-    int numWrong = 0;
     for (int i=0; i < HISTO_HEIGHT*HISTO_WIDTH; i++){
         if (gold_bins[i] != kernel_bins[i]){
             passed = 0;
-            printf("\ngold_bins[i]: %u, kernel_bins[i]: %u", gold_bins[i], kernel_bins[i]);
-            numWrong++;
+            break;
         }
     }
-    printf("\num Wrong: %i", numWrong);
     (passed) ? printf("\n    Test PASSED\n") : printf("\n    Test FAILED\n");
 
-    freeMemory(input_d, inputHeight_d, inputWidth_d, bins_d );
     free(gold_bins);
     free(kernel_bins);
 }
