@@ -14,3 +14,9 @@ c) How  do  the  measured  FLOPS  rate  for  the  CPU  and  GPU  kernels  compar
 theoretical performance limits of each architecture? For your  GPU implementation,  discuss  what  bottlenecks  your
 code  is  likely  bound by, limiting higher performance.
 ------------------
+
+Our Steps
+------------
+First we decided to implement the exclusive scan for an array of size <= 1024 so that we could calculate the result
+with a single block of <= 1024 threads. As expected, this did not result in significant speedup (Speedup: 0.045455X). 
+

@@ -50,7 +50,7 @@
 #define MAX_RAND 3
 
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 // declaration, forward
 void runTest( int argc, char** argv);
 
@@ -73,7 +73,7 @@ main( int argc, char** argv)
     return EXIT_SUCCESS;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 //! Run a scan test for CUDA
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -203,6 +203,7 @@ runTest( int argc, char** argv)
     cutStartTimer(timer);
     
     // **===-------- Lab4: Modify the body of this function -----------===**
+
     prescanArray(d_odata, d_idata, num_elements);
     // **===-----------------------------------------------------------===**
     CUDA_SAFE_CALL( cudaThreadSynchronize() );
@@ -216,6 +217,12 @@ runTest( int argc, char** argv)
     // deallocBlockSums();
     // **===-----------------------------------------------------------===**
 
+    printf("device input:      ");
+	for (int i = 0; i < num_elements; i++) {
+		printf("%f ", h_data[i]);
+	}
+	printf("\n");
+//////////////////
 
     // copy result from device to host
     CUDA_SAFE_CALL(cudaMemcpy( h_data, d_odata, sizeof(float) * num_elements, 
@@ -229,6 +236,19 @@ runTest( int argc, char** argv)
     {
         WriteFile(h_data, argv[1], num_elements);
     }
+
+    printf("device output:     ");
+    for (int i = 0; i < num_elements; i++) {
+    	printf("%f ", h_data[i]);
+    }
+    printf("\n");
+
+    printf("reference:         ");
+    for (int i = 0; i < num_elements; i++) {
+    	printf("%f ", reference[i]);
+    }
+    printf("\n");
+    //
 
 
     // Check if the result is equivalent to the expected soluion
