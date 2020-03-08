@@ -217,12 +217,12 @@ runTest( int argc, char** argv)
     // deallocBlockSums();
     // **===-----------------------------------------------------------===**
 
-    printf("device input:      ");
-	for (int i = 0; i < 2048; i++) {
-		printf("%f ", h_data[i]);
-	}
-	printf("\n");
-////////////////////////
+//    printf("device input:      ");
+//	for (int i = 0; i < 2048; i++) {
+//		printf("%f ", h_data[i]);
+//	}
+//	printf("\n");
+///
 
     // copy result from device to host
     CUDA_SAFE_CALL(cudaMemcpy( h_data, d_odata, sizeof(float) * num_elements, 
@@ -238,17 +238,26 @@ runTest( int argc, char** argv)
     }
 
     printf("device output:     ");
-    for (int i = 0; i < 2048; i++) {
-    	printf("%f ", h_data[i]);
+    for (int i = 0; i < 16000000; i++) {
+    	if (reference[i] != h_data[i]){
+    		printf("idx: %i, h_data: %f, reference: %f ", i, h_data[i], reference[i]);
+    		break;
+    	}
     }
     printf("\n");
 
     printf("reference:         ");
-    for (int i = 0; i < 2048; i++) {
+    for (int i = 0; i < 3000; i++) {
     	printf("%f ", reference[i]);
     }
     printf("\n");
-    //
+
+    printf("h data:            ");
+	for (int i = 0; i < 3000; i++) {
+		printf("%f ", h_data[i]);
+	}
+	printf("\n");
+
 
 
     // Check if the result is equivalent to the expected soluion
