@@ -4,7 +4,7 @@
 // includes, kernels
 #include <assert.h>
 
-
+#define numThreads 1024
 #define NUM_BANKS 32
 #define LOG_NUM_BANKS 5
 // Lab4: You can use any other block size you wish.
@@ -24,7 +24,8 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 	extern __shared__ float scanArray[];
 
 	//printf("threadidx.x: %i\n", threadIdx.x);
-	scanArray[threadIdx.x] = (threadIdx.x > 0) ? inArray[threadIdx.x - 1] : 0;
+
+	scanArray[threadIdx.x] = (threadIdx.x > 0) ? inArray[blockIdx.x * numThreads + threadIdx.x - 1] : 0;
 
 
 	__syncthreads();
@@ -33,35 +34,36 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
     // reduction step
 	int stride = 1;
 
-	while (stride < numElements){
+	while (stride < numThreads){
+        __syncthreads();
 		int index = (threadIdx.x + 1) * stride * 2;
 
-		if (index < numElements)
+		if (index < numThreads)
 			scanArray[index] += scanArray[index-stride];
 
 		stride *= 2;
 
-		__syncthreads();
 	}
 
 
 	// post-scan step
-	stride = numElements >> 1;
+	stride = numThreads >> 1;
 
 	while (stride > 0){
+        __syncthreads();
 		int index = (threadIdx.x + 1) * stride * 2;
 
-		if (index < numElements)
+		if (index < numThreads)
 			scanArray[index+stride] += scanArray[index];
 
 		stride = stride >> 1;
 
-		__syncthreads();
 	}
 
 
-	outArray[threadIdx.x] = scanArray[threadIdx.x];
-	__syncthreads();
+    __syncthreads();
+	outArray[blockIdx.x * numThreads + threadIdx.x] = scanArray[threadIdx.x];
+
 }
 
 // **===-------- Lab4: Modify the body of this function -----------===**
@@ -70,14 +72,17 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 void prescanArray(float *outArray, float *inArray, int numElements)
 {
 
-	printf("smem size: %i\n", numElements * sizeof(float));
+	printf("smem size: %i\n", numThreads * sizeof(float));
 
-    dim3 DimGrid(1,1);
+//    dim3 DimGrid(1,1);
     printf("num elements: %i\n", numElements);
-    dim3 DimBlock(numElements);
-    int sharedMemSize = numElements * sizeof(float);
 
-    prescanKernel<<<DimGrid, DimBlock, sharedMemSize>>>(outArray, inArray, numElements);
+    //TODO:Make dynamic for numElements not divisible by 1024 (Multiple and Remainder)
+    const int numBlocks = numElements/numThreads;
+    dim3 DimBlock(numBlocks);
+    int sharedMemSize = numThreads * sizeof(float);
+
+    prescanKernel<<<DimBlock, numThreads,sharedMemSize>>>(outArray, inArray, numElements);
 
 }
 // **===-----------------------------------------------------------===**

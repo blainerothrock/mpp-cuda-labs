@@ -218,11 +218,11 @@ runTest( int argc, char** argv)
     // **===-----------------------------------------------------------===**
 
     printf("device input:      ");
-	for (int i = 0; i < num_elements; i++) {
+	for (int i = 0; i < 2048; i++) {
 		printf("%f ", h_data[i]);
 	}
 	printf("\n");
-//////////////////
+////////////////////////
 
     // copy result from device to host
     CUDA_SAFE_CALL(cudaMemcpy( h_data, d_odata, sizeof(float) * num_elements, 
@@ -238,13 +238,13 @@ runTest( int argc, char** argv)
     }
 
     printf("device output:     ");
-    for (int i = 0; i < num_elements; i++) {
+    for (int i = 0; i < 2048; i++) {
     	printf("%f ", h_data[i]);
     }
     printf("\n");
 
     printf("reference:         ");
-    for (int i = 0; i < num_elements; i++) {
+    for (int i = 0; i < 2048; i++) {
     	printf("%f ", reference[i]);
     }
     printf("\n");
