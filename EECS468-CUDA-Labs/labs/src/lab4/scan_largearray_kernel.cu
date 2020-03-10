@@ -4,7 +4,7 @@
 // includes, kernels
 #include <assert.h>
 
-#define numThreads 1024
+#define numThreads 4
 #define NUM_BANKS 32
 #define LOG_NUM_BANKS 5
 // Lab4: You can use any other block size you wish.
@@ -18,7 +18,7 @@
 
 // Lab4: Kernel Functions
 
-__device__ float blockSums[15625];
+__device__ float blockSums[4];
 
 __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 
@@ -26,8 +26,10 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 	extern __shared__ float scanArray[];
 
 	//printf("threadidx.x: %i\n", threadIdx.x);
-
-	scanArray[threadIdx.x] = (threadIdx.x > 0) ? inArray[blockIdx.x * numThreads + threadIdx.x - 1] : 0;
+	if (blockIdx.x == 0 && threadIdx.x == 0)
+		scanArray[threadIdx.x] = 0;
+	else
+		scanArray[threadIdx.x] = inArray[blockIdx.x * numThreads + threadIdx.x - 1];
 
 
 	__syncthreads();
@@ -64,10 +66,12 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 
 	//int index = (threadIdx.x + 1) * stride * 2;
 
+
 	if (threadIdx.x == 0) {
 //		if (blockIdx.x < 1) {
 //			printf("setting %i to %f\n", blockIdx.x, scanArray[numThreads - 1]);
 //		}
+		printf("\nBlock Id: %i, scanArray: %f %f %f %f", blockIdx.x, scanArray[0],scanArray[1], scanArray[2], scanArray[3]);
 		blockSums[blockIdx.x] = scanArray[numThreads - 1];
 	}
 
@@ -88,10 +92,14 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 __global__ void blockScanKernel(float *outArray) {
 
 	//printf("\nHello from Second Kernel. Printing blockSums");
+	//
 
 	extern __shared__ float scanArray[];
 
-	scanArray[threadIdx.x] = (threadIdx.x > 0) ? blockSums[blockIdx.x * numThreads + threadIdx.x - 1] : 0;
+	if (blockIdx.x == 0 && threadIdx.x == 0)
+		scanArray[threadIdx.x] = 0;
+	else
+		scanArray[threadIdx.x] = blockSums[blockIdx.x];
 
 	__syncthreads();
 	// exclusive
@@ -123,13 +131,13 @@ __global__ void blockScanKernel(float *outArray) {
 
 	}
 
+//	__syncthreads();
+//
+//	blockSums[blockIdx.x * numThreads + threadIdx.x] = scanArray[threadIdx.x];
 	__syncthreads();
 
-	blockSums[blockIdx.x * numThreads + threadIdx.x] = scanArray[threadIdx.x];
-	__syncthreads();
 
-
-	printf("\nBlockSums %f %f %f %f %f", blockSums[0],blockSums[1], blockSums[2], blockSums[3], blockSums[4]);
+	printf("\nBlockSums %f %f %f %f", blockSums[0],blockSums[1], blockSums[2], blockSums[3]);
 
 	// add to out array
 	outArray[blockIdx.x * numThreads + threadIdx.x] += blockSums[blockIdx.x];
@@ -144,7 +152,7 @@ void prescanArray(float *outArray, float *inArray, int numElements)
 //    dim3 DimGrid(1,1);
     printf("num elements: %i\n", numElements);
 
-    //TODO:Make dynamic for numElements not divisible by 1024 (Multiple and Remainder)
+    //TODO: Make dynamic for numElements not divisible by 1024 (Multiple and Remainder)
     const int numBlocks = numElements/numThreads;
     dim3 DimBlock(numBlocks);
     int sharedMemSize = numThreads * sizeof(float);
@@ -157,7 +165,7 @@ void prescanArray(float *outArray, float *inArray, int numElements)
 
     const int numBlocks1 = ceil(numBlocks/numThreads);
     dim3 DimBlock1(numBlocks1);
-    blockScanKernel<<<DimBlock1, numThreads,sharedMemSize>>>(outArray);
+    blockScanKernel<<<DimBlock, numThreads,sharedMemSize>>>(outArray);
 
 }
 // **===-----------------------------------------------------------===**
