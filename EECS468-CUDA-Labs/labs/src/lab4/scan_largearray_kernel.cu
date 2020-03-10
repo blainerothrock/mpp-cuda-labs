@@ -35,30 +35,46 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 	__syncthreads();
 	// exclusive
 
+	if (threadIdx.x == numThreads-1)
+		printf("\nBlock Id: %i, scanArray before scan!: %f %f %f %f", blockIdx.x, scanArray[0],scanArray[1], scanArray[2], scanArray[3]);;
+
     // reduction step
 	int stride = 1;
 
 	while (stride < numThreads){
-        __syncthreads();
-		int index = (threadIdx.x + 1) * stride * 2;
+		int index;
+		// exclusive for the first block
+		if (blockIdx.x == 0)
+			index = (threadIdx.x + 1) * stride * 2;
+		// inclusive for remaining blocks
+		else
+			index = (threadIdx.x + 1) * stride * 2 - 1;
 
 		if (index < numThreads)
 			scanArray[index] += scanArray[index-stride];
 
 		stride *= 2;
+
+		__syncthreads();
 	}
 
 	// post-scan step
 	stride = numThreads >> 1;
 
 	while (stride > 0){
-        __syncthreads();
-		int index = (threadIdx.x + 1) * stride * 2;
+		// don't need to check block, inclusive
+		int index;
+		if (blockIdx.x == 0)
+			index = (threadIdx.x + 1) * stride * 2;
+		else
+			index = (threadIdx.x + 1) * stride * 2 - 1;
 
 		if (index < numThreads)
 			scanArray[index+stride] += scanArray[index];
 
 		stride = stride >> 1;
+
+		__syncthreads();
 
 	}
 
@@ -71,19 +87,12 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 //		if (blockIdx.x < 1) {
 //			printf("setting %i to %f\n", blockIdx.x, scanArray[numThreads - 1]);
 //		}
-		printf("\nBlock Id: %i, scanArray: %f %f %f %f", blockIdx.x, scanArray[0],scanArray[1], scanArray[2], scanArray[3]);
+		printf("\nBlock Id: %i, scanArray after scan!: %f %f %f %f", blockIdx.x, scanArray[0],scanArray[1], scanArray[2], scanArray[3]);
 		blockSums[blockIdx.x] = scanArray[numThreads - 1];
 	}
 
     __syncthreads();
 
-//    float offset = 0.0;
-//    if (blockIdx.x > 0) {
-//    	offset = blockSums[blockIdx.x - 1];
-//    	if (blockIdx.x == 1 && threadIdx.x == 0) {
-//    		printf("offset: %f:%f\n", offset, blockSums[blockIdx.x - 1]);
-//    	}
-//    }
 
 	outArray[blockIdx.x * numThreads + threadIdx.x] = scanArray[threadIdx.x];
 
@@ -137,7 +146,11 @@ __global__ void blockScanKernel(float *outArray) {
 	__syncthreads();
 
 
-	printf("\nBlockSums %f %f %f %f", blockSums[0],blockSums[1], blockSums[2], blockSums[3]);
+	//printf("\nBlockSums %f %f %f %f", blockSums[0],blockSums[1], blockSums[2], blockSums[3]);
+
+	// print out scanArray (should be the scan of blockSums, step 3)
+	if (threadIdx.x == numThreads - 1)
+		printf("\nBlockSums: %f %f %f %f  ----- scanArray: %f %f %f %f", blockSums[0],blockSums[1], blockSums[2], blockSums[3], scanArray[0], scanArray[1], scanArray[2], scanArray[3]);
 
 	// add to out array
 	outArray[blockIdx.x * numThreads + threadIdx.x] += blockSums[blockIdx.x];
@@ -163,9 +176,10 @@ void prescanArray(float *outArray, float *inArray, int numElements)
 
 
 
-    const int numBlocks1 = ceil(numBlocks/numThreads);
+    const int numBlocks1 = 2;
+    const int numThreads1 = 2;
     dim3 DimBlock1(numBlocks1);
-    blockScanKernel<<<DimBlock, numThreads,sharedMemSize>>>(outArray);
+    blockScanKernel<<<DimBlock, numThreads1,sharedMemSize>>>(outArray);
 
 }
 // **===-----------------------------------------------------------===**
