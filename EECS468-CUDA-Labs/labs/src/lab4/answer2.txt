@@ -6,6 +6,10 @@ scanArray before scan should be: 0 1 3 4 | 8 5 3 5 | 1 3 5 3 | 1 4 5 3 - WORKS
 
 2nd step (store last elem of each block in blockSum): 8 21 12 13 - WORKS
 
+2nd scanArray before scan: 0 8 | 21 12
+
+NOTE: may be too complicated, probably should do 1024x1024 blocks 
+
 3rd step (run exclusive scan on blockSum): 0 8 29 41 - DOESN'T WORK
 
 last step (final result): 0 1 4 8 16 21 24 29 30 33 38 41 42 46 51 54 

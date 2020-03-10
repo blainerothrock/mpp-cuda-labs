@@ -65,7 +65,7 @@ void computeGold( float* reference, float* idata, const unsigned int len);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Program main
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 int 
 main( int argc, char** argv) 
 {
@@ -222,7 +222,7 @@ runTest( int argc, char** argv)
 //		printf("%f ", h_data[i]);
 //	}
 //	printf("\n");
-/////
+///
 
     // copy result from device to host
     CUDA_SAFE_CALL(cudaMemcpy( h_data, d_odata, sizeof(float) * num_elements, 
@@ -240,7 +240,7 @@ runTest( int argc, char** argv)
     printf("device output:     ");
     for (int i = 0; i < 16; i++) {
     	if (reference[i] != h_data[i]){
-    		printf("idx: %i, h_data: %f, reference: %f ", i, h_data[i], reference[i]);
+    		printf("idx: %i, h_data: %.1f, reference: %.1f ", i, h_data[i], reference[i]);
     		break;
     	}
     }
@@ -248,15 +248,16 @@ runTest( int argc, char** argv)
 
     printf("reference:         ");
     for (int i = 0; i < 16; i++) {
-    	printf("%f ", reference[i]);
+    	printf("%.1f ", reference[i]);
     }
     printf("\n");
 
     printf("h data:            ");
 	for (int i = 0; i < 16; i++) {
-		printf("%f ", h_data[i]);
+		printf("%.1f ", h_data[i]);
 	}
 	printf("\n");
+	//
 
 
 
