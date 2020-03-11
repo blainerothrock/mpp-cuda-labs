@@ -114,7 +114,7 @@ __global__ void blockScanKernel(float *outArray) {
 	// exclusive
 
 	if (threadIdx.x == numT-1)
-		printf("Block Id: %i, 2nd scanArray before scan!: %.1f %.1f\n", blockIdx.x, scanArray[0],scanArray[1]);
+		printf("Block Id: %i, 2nd scanArray before scan!: %.1f %.1f %.1f %.1f\n", blockIdx.x, scanArray[0],scanArray[1], scanArray[2], scanArray[3]);
 
 	// reduction step
 	int stride = 1;
@@ -145,19 +145,28 @@ __global__ void blockScanKernel(float *outArray) {
 
 //	__syncthreads();
 //
-//	blockSums[blockIdx.x * numThreads + threadIdx.x] = scanArray[threadIdx.x];
+	blockSums[threadIdx.x] = scanArray[threadIdx.x];
 	__syncthreads();
 
 
 	//printf("\nBlockSums %f %f %f %f", blockSums[0],blockSums[1], blockSums[2], blockSums[3]);
 
 	// print out scanArray (should be the scan of blockSums, step 3)
-	if (threadIdx.x == 0)
-		printf("BlockSums: %.1f %.1f %.1f %.1f  ----- 2nd scanArray after scan!: %.1f %.1f \n", blockSums[0], blockSums[1], blockSums[2], blockSums[3], scanArray[0], scanArray[1]);
+	if (threadIdx.x == 3)
+		printf("BlockSums: %.1f %.1f %.1f %.1f  ----- 2nd scanArray after scan!: %.1f %.1f %.1f %.1f\n", blockSums[0], blockSums[1], blockSums[2], blockSums[3], scanArray[0],scanArray[1], scanArray[2], scanArray[3]);
 
 	// add to out array
-	outArray[blockIdx.x * numT + threadIdx.x] += blockSums[blockIdx.x];
+//	printf("\nAdding scanArray[%i] = %f to outArray[%i] = %f", blockIdx.x, scanArray[blockIdx.x], blockIdx.x * numT + threadIdx.x, outArray[blockIdx.x * numT + threadIdx.x]);
+//	outArray[blockIdx.x * numT + threadIdx.x] += scanArray[blockIdx.x];
 
+}
+
+__global__ void bigBoyAdder(float * outArray) {
+
+	int numT = blockDim.x;
+
+	printf("\nAdding blockSums [%i] = %f to outArray[%i] = %f", blockIdx.x, blockSums[blockIdx.x], blockIdx.x * numT + threadIdx.x, outArray[blockIdx.x * numT + threadIdx.x]);
+	outArray[blockIdx.x * numT + threadIdx.x] += blockSums[blockIdx.x];
 }
 
 // **===-------- Lab4: Modify the body of this function -----------===**
@@ -177,11 +186,12 @@ void prescanArray(float *outArray, float *inArray, int numElements)
 
     prescanKernel<<<DimBlock, numThreads,sharedMemSize>>>(outArray, inArray, numElements);
 
-    const int numBlocks1 = 2;
-    const int numThreads1 = 2;
+    const int numBlocks1 = 1;
+    const int numThreads1 = 4;
     dim3 DimBlock1(numBlocks1);
     blockScanKernel<<<DimBlock1, numThreads1,sharedMemSize>>>(outArray);
 
+    bigBoyAdder<<<DimBlock, numThreads>>>(outArray);
 }
 // **===-----------------------------------------------------------===**
 
