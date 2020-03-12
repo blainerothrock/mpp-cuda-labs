@@ -1,0 +1,2 @@
+make clobber && make && ../../bin/linux/release/lab4 /home/bry4768/cuda/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab4/size2.txt /home/bry4768/cuda/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab4/input2.txt /home/bry4768/cuda/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab4/output.txt
+make clobber && make && ../../bin/linux/release/lab4 /home/bry4768/cuda/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab4/size2.txt /home/bry4768/cuda/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab4/input2.txt /home/bry4768/cuda/mpp-cuda-labs/EECS468-CUDA-Labs/labs/src/lab4/output.txt

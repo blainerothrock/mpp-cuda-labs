@@ -16,10 +16,7 @@
 
 
 // Lab4: Kernel Functions
-
-__device__ float blockSums[4];
-
-__global__ void prescanKernel(float *outArray, float *inArray, int numElements){
+__global__ void prescanKernel(float *outArray, float *inArray, float *blockSums, int numElements){
 
 	// scan arr in shared mem
 	extern __shared__ float scanArray[];
@@ -97,7 +94,7 @@ __global__ void prescanKernel(float *outArray, float *inArray, int numElements){
 
 }
 
-__global__ void blockScanKernel(float *outArray) {
+__global__ void scanKernel(float *outArray, float *inArray) {
 
 	//printf("\nHello from Second Kernel. Printing blockSums");
 	//
@@ -108,7 +105,7 @@ __global__ void blockScanKernel(float *outArray) {
 	if (blockIdx.x == 0 && threadIdx.x == 0)
 		scanArray[threadIdx.x] = 0;
 	else
-		scanArray[threadIdx.x] = blockSums[blockIdx.x * blockDim.x + threadIdx.x - 1];
+		scanArray[threadIdx.x] = inArray[blockIdx.x * blockDim.x + threadIdx.x - 1];
 
 	__syncthreads();
 	// exclusive
@@ -145,7 +142,7 @@ __global__ void blockScanKernel(float *outArray) {
 
 //	__syncthreads();
 //
-	blockSums[threadIdx.x] = scanArray[threadIdx.x];
+	inArray[threadIdx.x] = scanArray[threadIdx.x];
 	__syncthreads();
 
 
@@ -153,7 +150,7 @@ __global__ void blockScanKernel(float *outArray) {
 
 	// print out scanArray (should be the scan of blockSums, step 3)
 	if (threadIdx.x == 3)
-		printf("BlockSums: %.1f %.1f %.1f %.1f  ----- 2nd scanArray after scan!: %.1f %.1f %.1f %.1f\n", blockSums[0], blockSums[1], blockSums[2], blockSums[3], scanArray[0],scanArray[1], scanArray[2], scanArray[3]);
+		printf("BlockSums: %.1f %.1f %.1f %.1f  ----- 2nd scanArray after scan!: %.1f %.1f %.1f %.1f\n", inArray[0], inArray[1], inArray[2], inArray[3], scanArray[0],scanArray[1], scanArray[2], scanArray[3]);
 
 	// add to out array
 //	printf("\nAdding scanArray[%i] = %f to outArray[%i] = %f", blockIdx.x, scanArray[blockIdx.x], blockIdx.x * numT + threadIdx.x, outArray[blockIdx.x * numT + threadIdx.x]);
@@ -161,7 +158,7 @@ __global__ void blockScanKernel(float *outArray) {
 
 }
 
-__global__ void bigBoyAdder(float * outArray) {
+__global__ void bigBoyAdder(float * outArray, float * blockSums) {
 
 	int numT = blockDim.x;
 
@@ -182,16 +179,19 @@ void prescanArray(float *outArray, float *inArray, int numElements)
     dim3 DimBlock(numBlocks);
     int sharedMemSize = numThreads * sizeof(float);
 
+    float * d_blockSums = NULL;
+    cudaMalloc( (void**) &d_blockSums, sharedMemSize);
+
     printf("smem size: %i\n", sharedMemSize);
 
-    prescanKernel<<<DimBlock, numThreads,sharedMemSize>>>(outArray, inArray, numElements);
+    prescanKernel<<<DimBlock, numThreads,sharedMemSize>>>(outArray, inArray, d_blockSums, numElements);
 
     const int numBlocks1 = 1;
     const int numThreads1 = 4;
     dim3 DimBlock1(numBlocks1);
-    blockScanKernel<<<DimBlock1, numThreads1,sharedMemSize>>>(outArray);
+    scanKernel<<<DimBlock1, numThreads1,sharedMemSize>>>(outArray, d_blockSums);
 
-    bigBoyAdder<<<DimBlock, numThreads>>>(outArray);
+    bigBoyAdder<<<DimBlock, numThreads>>>(outArray, d_blockSums);
 }
 // **===-----------------------------------------------------------===**
 
