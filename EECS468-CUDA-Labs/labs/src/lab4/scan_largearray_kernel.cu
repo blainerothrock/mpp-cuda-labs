@@ -4,11 +4,13 @@
 // includes, kernels
 #include <assert.h>
 
-#define numThreads 1024
+#define MAX_THREADS 512
 #define NUM_BANKS 32
 #define LOG_NUM_BANKS 5
 // Lab4: You can use any other block size you wish.
 #define BLOCK_SIZE 512
+
+#define CONFLICT_FREE_OFFSET(n) ((n) >> NUM_BANKS + (n) >> (2 * LOG_NUM_BANKS))
 
 // Lab4: Host Helper Functions (allocate your own data structure...)
 
@@ -17,57 +19,119 @@
 // Lab4: Kernel Functions
 __global__ void prescanKernel(float *outArray, float *inArray, float *blockSums, int numElements){
 
-	// scan arr in shared mem
-	extern __shared__ float scanArray[];
+    // scan arr in shared mem
+    extern __shared__ float scanArray[];
 
-	if (blockIdx.x == 0 && threadIdx.x == 0)
+    if (blockIdx.x == 0 && threadIdx.x == 0)
         scanArray[threadIdx.x] = 0;
     else
         scanArray[threadIdx.x] = inArray[blockIdx.x * blockDim.x + threadIdx.x - 1];
 
-	__syncthreads();
-	// exclusive
+    __syncthreads();
+    // exclusive
+
+    // reduction step
+    int stride = 1;
+
+    while (stride < blockDim.x){
+        int index;
+        // exclusive for the first block
+        if (blockIdx.x == 0)
+            index = (threadIdx.x + 1) * stride * 2;
+            // inclusive for remaining blocks
+        else
+            index = (threadIdx.x + 1) * stride * 2 - 1;
+
+        if (index < blockDim.x)
+            scanArray[index] += scanArray[index-stride];
+
+        stride *= 2;
+
+        __syncthreads();
+    }
+
+    // post-scan step
+    stride = blockDim.x >> 1;
+
+    while (stride > 0){
+        // don't need to check block, inclusive
+        int index;
+        if (blockIdx.x == 0)
+            index = (threadIdx.x + 1) * stride * 2;
+        else
+            index = (threadIdx.x + 1) * stride * 2 - 1;
+
+        if (index < blockDim.x)
+            scanArray[index+stride] += scanArray[index];
+
+        stride = stride >> 1;
+
+        __syncthreads();
+
+    }
+
+    __syncthreads();
+
+    if (threadIdx.x == 0) {
+        blockSums[blockIdx.x] = scanArray[blockDim.x - 1];
+    }
+
+    outArray[blockIdx.x * blockDim.x + threadIdx.x] = scanArray[threadIdx.x];
+
+}
+
+__global__ void prescanKernel_bank(float *outArray, float *inArray, float *blockSums, int numElements){
+
+	// scan arr in shared mem
+	extern __shared__ float scanArray[];
+
+    int aIdx = threadIdx.x;
+    int bIdx = aIdx + (numElements / 2);
+    int bankOffsetA = CONFLICT_FREE_OFFSET(aIdx);
+    int bankOffsetB = CONFLICT_FREE_OFFSET(bIdx);
+
+    scanArray[aIdx + bankOffsetA] = inArray[aIdx];
+    scanArray[bIdx + bankOffsetB] = inArray[bIdx];
+
+//    printf("%i ", threadIdx.x);
+
+    __syncthreads();
+    // exclusive
 
     // reduction step
 	int stride = 1;
 
 	while (stride < blockDim.x){
-		int index;
-		// exclusive for the first block
-		if (blockIdx.x == 0)
-			index = (threadIdx.x + 1) * stride * 2;
-		// inclusive for remaining blocks
-		else
-			index = (threadIdx.x + 1) * stride * 2 - 1;
+        int ai = stride*(2*threadIdx.x+1)-1;
+        int bi = stride*(2*threadIdx.x+2)-1;
+        ai += CONFLICT_FREE_OFFSET(ai);
+        bi += CONFLICT_FREE_OFFSET(bi);
 
-		if (index < blockDim.x)
-			scanArray[index] += scanArray[index-stride];
+        scanArray[bi] += scanArray[ai];
 
 		stride *= 2;
 
-
-
 		__syncthreads();
 	}
+
+    if (threadIdx.x==0) { scanArray[numElements - 1 + CONFLICT_FREE_OFFSET(numElements - 1)] = 0; }
 
 	// post-scan step
 	stride = blockDim.x >> 1;
 
 	while (stride > 0){
-		// don't need to check block, inclusive
-		int index;
-		if (blockIdx.x == 0)
-			index = (threadIdx.x + 1) * stride * 2;
-		else
-			index = (threadIdx.x + 1) * stride * 2 - 1;
+        int ai = stride*(2*threadIdx.x+1)-1;
+        int bi = stride*(2*threadIdx.x+2)-1;
+        ai += CONFLICT_FREE_OFFSET(ai);
+        bi += CONFLICT_FREE_OFFSET(bi);
 
-		if (index < blockDim.x)
-			scanArray[index+stride] += scanArray[index];
+        float t = scanArray[ai];
+        scanArray[ai] = scanArray[bi];
+        scanArray[bi] += t;
 
 		stride = stride >> 1;
 
 		__syncthreads();
-
 	}
 
 	__syncthreads();
@@ -76,8 +140,10 @@ __global__ void prescanKernel(float *outArray, float *inArray, float *blockSums,
         blockSums[blockIdx.x] = scanArray[blockDim.x - 1];
     }
 
-	outArray[blockIdx.x * blockDim.x + threadIdx.x] = scanArray[threadIdx.x];
+//	outArray[blockIdx.x * blockDim.x + threadIdx.x] = scanArray[threadIdx.x];
 
+    outArray[2*threadIdx.x] = scanArray[2*threadIdx.x]; // write results to device memory
+    outArray[2*threadIdx.x+1] = scanArray[2*threadIdx.x+1];
 }
 
 __global__ void scanKernel(float *inArray) {
@@ -132,10 +198,14 @@ __global__ void bigBoyAdder(float * outArray, float * blockSums) {
 // function in this file, and then call them from here.
 void prescanArray(float *outArray, float *inArray, int numElements)
 {
-    int blockSumSize = ceil((float)numElements/(float)numThreads); // 15,625
-    int sharedMemSize = numThreads * 8 * sizeof(float);
+    int threads = numElements;
+    if (threads > MAX_THREADS)
+        threads = MAX_THREADS;
 
-    printf("numThreads: %i\n", numThreads);
+    int blockSumSize = ceil((float)numElements/(float)threads); // 15,625
+    int sharedMemSize = threads * 1.45 * sizeof(float);
+
+    printf("numThreads: %i\n", threads);
     printf("numElements: %i\n", numElements);
     printf("blockSumSize: %i\n", blockSumSize);
     printf("sharedMemSize: %i\n", sharedMemSize);
@@ -144,11 +214,12 @@ void prescanArray(float *outArray, float *inArray, int numElements)
     cudaMalloc( (void**) &d_blockSums, blockSumSize * sizeof(float));
 
     dim3 DimBlock(blockSumSize);
-    prescanKernel<<<DimBlock, numThreads, sharedMemSize>>>(outArray, inArray, d_blockSums, numElements);
+
+    prescanKernel<<<DimBlock, threads, sharedMemSize>>>(outArray, inArray, d_blockSums, numElements);
     cudaThreadSynchronize();
 
-    if (blockSumSize > numThreads) { // only do one step
-        int blockSumSize1 = ceil(float(blockSumSize)/(float)numThreads); // 16
+    if (blockSumSize > threads) { // only do one step
+        int blockSumSize1 = ceil(float(blockSumSize)/(float)threads); // 16
         printf("blockSumSize1: %i\n", blockSumSize1);
         float * d_blockSums1 = NULL;
         cudaMalloc( (void**) &d_blockSums1, blockSumSize1 * sizeof(float)); // 16 * 4
@@ -157,8 +228,8 @@ void prescanArray(float *outArray, float *inArray, int numElements)
         cudaMalloc( (void**) &d_tmpOut, blockSumSize * sizeof(float)); // 15,625 * 4
 
         dim3 DimBlock1(blockSumSize1);
-        int numElements1 = (blockSumSize1 - 1) * blockSumSize % numThreads;
-        prescanKernel<<<DimBlock1, numThreads, sharedMemSize>>>(d_tmpOut, d_blockSums, d_blockSums1, numElements1);
+        int numElements1 = (blockSumSize1 - 1) * blockSumSize % threads;
+        prescanKernel<<<DimBlock1, threads, sharedMemSize>>>(d_tmpOut, d_blockSums, d_blockSums1, numElements1);
         cudaThreadSynchronize();
 
 //        float * h_tmpOut = (float *)malloc(blockSumSize1 * sizeof(float));
@@ -185,14 +256,14 @@ void prescanArray(float *outArray, float *inArray, int numElements)
 //        }
 //        printf("\n");
 
-        bigBoyAdder<<<DimBlock1, numThreads>>>(d_tmpOut, d_blockSums1); // d_tmpOut2
+        bigBoyAdder<<<DimBlock1, threads>>>(d_tmpOut, d_blockSums1); // d_tmpOut2
         cudaThreadSynchronize();
 
-        bigBoyAdder<<<DimBlock, numThreads>>>(outArray, d_tmpOut);
+        bigBoyAdder<<<DimBlock, threads>>>(outArray, d_tmpOut);
     } else {
-        scanKernel<<<1, 16, sharedMemSize>>>(d_blockSums);
+        scanKernel<<<1, blockSumSize, sharedMemSize>>>(d_blockSums);
         cudaThreadSynchronize();
-        bigBoyAdder<<<DimBlock, numThreads>>>(outArray, d_blockSums);
+        bigBoyAdder<<<DimBlock, blockSumSize>>>(outArray, d_blockSums);
     }
 }
 // **===-----------------------------------------------------------===**

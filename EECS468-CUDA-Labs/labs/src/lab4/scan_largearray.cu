@@ -46,7 +46,7 @@
 // includes, kernels
 #include <scan_largearray_kernel.cu>  
 
-#define DEFAULT_NUM_ELEMENTS 2730811
+#define DEFAULT_NUM_ELEMENTS 16777216
 #define MAX_RAND 3
 
 
