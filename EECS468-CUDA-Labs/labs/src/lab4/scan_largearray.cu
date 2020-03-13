@@ -46,7 +46,7 @@
 // includes, kernels
 #include <scan_largearray_kernel.cu>  
 
-#define DEFAULT_NUM_ELEMENTS 16000000 
+#define DEFAULT_NUM_ELEMENTS 2730811
 #define MAX_RAND 3
 
 
@@ -196,7 +196,7 @@ runTest( int argc, char** argv)
 
     // Run just once to remove startup overhead for more accurate performance 
     // measurement
-    prescanArray(d_odata, d_idata, 16);
+//    prescanArray(d_odata, d_idata, 16);
 
     // Run the prescan
     CUT_SAFE_CALL(cutCreateTimer(&timer));
@@ -218,11 +218,10 @@ runTest( int argc, char** argv)
     // **===-----------------------------------------------------------===**
 
 //    printf("device input:      ");
-//	for (int i = 0; i < 2048; i++) {
-//		printf("%f ", h_data[i]);
-//	}
-//	printf("\n");
-///
+//    for (int i = 1020; i < 1030; i++) {
+//        printf("%.1f ", h_data[i]);
+//    }
+//    printf("\n");
 
     // copy result from device to host
     CUDA_SAFE_CALL(cudaMemcpy( h_data, d_odata, sizeof(float) * num_elements, 
@@ -237,29 +236,29 @@ runTest( int argc, char** argv)
         WriteFile(h_data, argv[1], num_elements);
     }
 
-    printf("device output:     ");
-    for (int i = 0; i < 16; i++) {
-    	if (reference[i] != h_data[i]){
-    		printf("idx: %i, h_data: %.1f, reference: %.1f ", i, h_data[i], reference[i]);
-    		break;
-    	}
-    }
-    printf("\n");
+//    printf("device output:     \n");
+//    for (int i = 0; i < 16000000; i++) {
+//    	if (reference[i] != h_data[i]){
+//            printf("idx-1: %i, h_data: %.1f, reference: %.1f\n", i-1, h_data[i-1], reference[i-1]);
+//    		printf("idx: %i, h_data:   %.1f, reference: %.1f\n", i, h_data[i], reference[i]);
+//            printf("idx+1: %i, h_data: %.1f, reference: %.1f\n", i+1, h_data[i+1], reference[i+1]);
+//    		break;
+//    	}
+//    }
+//    printf("\n");
 
-    printf("reference:         ");
-    for (int i = 0; i < 16; i++) {
-    	printf("%.1f ", reference[i]);
-    }
-    printf("\n");
-
-    printf("h data:            ");
-	for (int i = 0; i < 16; i++) {
-		printf("%.1f ", h_data[i]);
-	}
-	printf("\n");
+//    printf("reference:         ");
+//    for (int i = 1020; i < 1030; i++) {
+//    	printf("%.1f ", reference[i]);
+//    }
+//    printf("\n");
+//
+//    printf("h data:            ");
+//	for (int i = 1020; i < 1030; i++) {
+//		printf("%.1f ", h_data[i]);
+//	}
+//	printf("\n");
 	//
-
-
 
     // Check if the result is equivalent to the expected soluion
     unsigned int result_regtest = cutComparef( reference, h_data, num_elements);
