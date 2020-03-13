@@ -1,24 +1,39 @@
 Authors: Grant Gasser (GGL8333), Nayan Mehta (NMH3011), Blaine Rothrock (BRY4668)
 
+
 ------------------
 Instructions
 
-a) Near the top of "scan_largearray.cu", set #define DEFAULT_NUM_ELEMENTS to 16777216.
-Set  #define  MAX_RAND  to  3. Record  the  performance  results  when run  without  arguments,
-including  the host  CPU  and  GPU  processing  times  and the speedup.
 
-b) Describe  how  you  handled  arrays  not  a  power  of  two  in  size,  and  how  you minimized shared memory
-bank conflicts. Also describe any other performance-enhancing optimizations you added.
+a) Near the top of "scan_largearray.cu", set #define DEFAULT_NUM_ELEMENTS to 16777216. Set  #define  MAX_RAND  to  3. Record  the  performance  results  when run  without  arguments, including  the host  CPU  and  GPU  processing  times  and the speedup.
 
-c) How  do  the  measured  FLOPS  rate  for  the  CPU  and  GPU  kernels  compare with each other, and with the
-theoretical performance limits of each architecture? For your  GPU implementation,  discuss  what  bottlenecks  your
+
+b) Describe  how  you  handled  arrays  not  a  power  of  two  in  size,  and  how  you minimized shared memory bank conflicts. Also describe any other performance-enhancing optimizations you added.
+
+
+c) How  do  the  measured  FLOPS  rate  for  the  CPU  and  GPU  kernels  compare with each other, and with the theoretical performance limits of each architecture? For your  GPU implementation,  discuss  what  bottlenecks  your
 code  is  likely  bound by, limiting higher performance.
 ------------------
 
+
 Our Steps
 ------------
-First we decided to implement the exclusive scan for an array of size <= 1024 so that we could calculate the result
-with a single block of <= 1024 threads. As expected, this did not result in significant speedup.
+First, we decided to implement the exclusive scan for an array of size <= 1024 so that we could calculate the result with a single block of <= 1024 threads. As expected, this did not result in significant speedup.
 
-after 1 billion hours, we were able to pass for 16,777,216 with speedup: 1.653367X.
 
+(a) Next, we expanded our kernels to handle large input arrays. We were able to pass for 16,777,216 elements with speedup: 1.653367X.
+
+
+While debugging, we realized our shared memory was too small. To fix this we added a large buffer into shared memory. After optimizing our shared memory size we were able to get 2.768004X speedup.
+
+
+Reducing the number of threads from 1024 to 512 gave us a speedup of up to and using shared mem size = numThreads + numThreads / NUM_BANKS resulted in a speedup of 4.280570X. We think reducing the number of threads in a block leads to a reduction in bank conflicts.
+
+
+(b) To account for non-power of 2 input sizes, we use the ceil(numElements/numThreads) to determine the size of the blockSums (the result of the block scan). We do the same thing for the second step where we call the kernel again. This ensures all values are scanned and none are cut off.
+
+
+We were not fully able to minimize bank conflicts, but our attempted kernel (prescanKernel_bank) is included. Minimizing bank conflicts is essential to utilizing the bandwidth of shared memory and therefore speeding up the kernel. To avoid bank conflicts all threads of a warp (32), but access the same bank. Not access to the same bank causes serialization problems where warps are blocked due to other warps accesses. The effects of bank conflicts can be seen in our above speed ups when reducing thread counts. Reducing threads per count per block reduces the degree of bank conflicts and therefore yields an increase in speed.
+
+
+(c) A simplified calculation for CPU FLOPS is cores * (cycles / seconds) * (FLOPS/ per core per cycle) (Wikipedia). For GPU the best explanation we count find total number of shaders (CUDA cores) * 2 * cycles. This is because CUDA cores can perform 2 floating-point calculations per cycle. The calculation is essentially the same for both CPU and GPU, the problem is keeping all the resources busy. Bandwidth becomes the bottleneck. In order to keep all resources busy, the GPU needs the bandwidth capacity of registers. Shared memory is fast, but not as fast and global memory is extremely slowed in comparison. In our code, the bottleneck is bank conflicts, with the number of threads per block being 1024, the shared memory accesses can result in 1024-way bank conflict.
