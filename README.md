@@ -16,3 +16,6 @@ Blaine Rothrock, Nayan Mehta, Grant Gasser
 
 ## Lab Assignments
 1. Matrix Multiplication
+2. Tiled Matrix Multiplication
+3. Histograms
+4. Parallel Prefix Scan for Large Arrays
